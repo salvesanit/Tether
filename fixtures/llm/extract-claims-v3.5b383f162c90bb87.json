@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "chat:#dev@1758844800.102",
+ "ceiling_kind": "chat",
+ "claims": [
+  {
+   "type": "decision",
+   "text": "we bumped session timeout to 120 minutes after the pilot complaints",
+   "quote": "we bumped session timeout to 120 minutes after the pilot complaints",
+   "subject": "session timeout",
+   "attribute": "minutes",
+   "value": "120 minutes",
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "issue:9#body",
+ "ceiling_kind": "issue_comment",
+ "claims": [
+  {
+   "type": "owner",
+   "text": "Tara owns the analytics rollup.",
+   "quote": "Tara owns the analytics rollup.",
+   "subject": "analytics rollup",
+   "attribute": "owner",
+   "value": "Tara",
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:notes/2026-09-24.md#P4",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "risk",
+   "text": "The onboarding doc might be stale after the pnpm switch.",
+   "quote": "The onboarding doc might be stale after the pnpm switch.",
+   "subject": "onboarding doc",
+   "attribute": "accuracy",
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

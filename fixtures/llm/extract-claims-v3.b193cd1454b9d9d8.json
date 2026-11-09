@@ -1,0 +1,9 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "commit:b75e867b4b599ccc17693a51471798c496c63981",
+ "ceiling_kind": "commit",
+ "claims": []
+}

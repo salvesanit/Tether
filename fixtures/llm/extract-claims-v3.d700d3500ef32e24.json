@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "chat:#dev@1757846400.101",
+ "ceiling_kind": "chat",
+ "claims": [
+  {
+   "type": "decision",
+   "text": "we deploy on Thursdays now, not Fridays",
+   "quote": "we deploy on Thursdays now, not Fridays",
+   "subject": "deploy",
+   "attribute": "day",
+   "value": "Thursday",
+   "rejected_options": [],
+   "gap_subject": "deploy",
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

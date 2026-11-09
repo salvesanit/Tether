@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:notes/2026-10-07.md#P4",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "risk",
+   "text": "The login callback might move to a new domain in December.",
+   "quote": "The login callback might move to a new domain in December.",
+   "subject": "login callback",
+   "attribute": "domain",
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

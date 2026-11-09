@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "chat:#dev@1759267200.103",
+ "ceiling_kind": "chat",
+ "claims": [
+  {
+   "type": "decision",
+   "text": "we ship from main now, not release/2.x",
+   "quote": "we ship from main now, not release/2.x",
+   "subject": "release branch",
+   "attribute": "branch",
+   "value": "main",
+   "rejected_options": [],
+   "gap_subject": "open work and branches",
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

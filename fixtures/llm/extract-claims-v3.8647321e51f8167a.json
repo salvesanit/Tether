@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "issue:21#body",
+ "ceiling_kind": "issue_comment",
+ "claims": [
+  {
+   "type": "open question",
+   "text": "Who approves the member-data privacy notice update?",
+   "quote": "Who approves the member-data privacy notice update?",
+   "subject": "privacy notice",
+   "attribute": "approval",
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

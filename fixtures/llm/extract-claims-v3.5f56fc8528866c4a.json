@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:notes/2026-09-03.md#P6",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "next step",
+   "text": "Migrate search to Meilisearch, tracked in issue #41.",
+   "quote": "Migrate search to Meilisearch, tracked in issue #41.",
+   "subject": "search",
+   "attribute": "migration",
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": "open work and branches",
+   "has_issue_ref": true,
+   "confidence": 0.9
+  }
+ ]
+}

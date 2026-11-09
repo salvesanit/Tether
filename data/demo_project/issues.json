@@ -1,0 +1,167 @@
+[
+  {
+    "number": 7,
+    "title": "Image uploads time out on slow networks",
+    "state": "open",
+    "user": {
+      "login": "meerak"
+    },
+    "labels": [
+      "bug"
+    ],
+    "body": "Image uploads time out again on slow networks.",
+    "comments": [
+      {
+        "user": {
+          "login": "meerak"
+        },
+        "body": "Repro on campus 3G. Holding for the retry fix.",
+        "created_at": "2026-08-03T09:00:00Z"
+      }
+    ]
+  },
+  {
+    "number": 9,
+    "title": "Analytics rollup for the season review",
+    "state": "open",
+    "user": {
+      "login": "aaravm"
+    },
+    "labels": [
+      "analytics"
+    ],
+    "body": "Tara owns the analytics rollup.",
+    "comments": []
+  },
+  {
+    "number": 12,
+    "title": "Auth service \u2014 token refresh",
+    "state": "open",
+    "user": {
+      "login": "priyan"
+    },
+    "labels": [
+      "auth"
+    ],
+    "body": "Refresh rotation lands this month.",
+    "comments": [
+      {
+        "user": {
+          "login": "priyan"
+        },
+        "body": "Priya owns the auth service.",
+        "created_at": "2026-07-11T10:00:00Z"
+      }
+    ]
+  },
+  {
+    "number": 15,
+    "title": "Notifications unreliable",
+    "state": "open",
+    "user": {
+      "login": "rohani"
+    },
+    "labels": [
+      "notifications"
+    ],
+    "body": "Delivery receipts missing on push.",
+    "comments": [
+      {
+        "user": {
+          "login": "aaravm"
+        },
+        "body": "Triaging this week.",
+        "created_at": "2026-09-02T08:00:00Z"
+      },
+      {
+        "user": {
+          "login": "aaravm"
+        },
+        "body": "Owner update: Rohan owns notifications.",
+        "created_at": "2026-09-06T08:00:00Z"
+      }
+    ]
+  },
+  {
+    "number": 21,
+    "title": "Member-data privacy notice",
+    "state": "open",
+    "user": {
+      "login": "tarab"
+    },
+    "labels": [
+      "privacy"
+    ],
+    "body": "Who approves the member-data privacy notice update?",
+    "comments": []
+  },
+  {
+    "number": 24,
+    "title": "Drop /v1 API",
+    "state": "open",
+    "user": {
+      "login": "aaravm"
+    },
+    "labels": [
+      "api"
+    ],
+    "body": "Can we drop the old /v1 API after December?",
+    "comments": []
+  },
+  {
+    "number": 41,
+    "title": "Migrate search to Meilisearch",
+    "state": "open",
+    "user": {
+      "login": "aaravm"
+    },
+    "labels": [
+      "search",
+      "performance"
+    ],
+    "body": "Migrate search to Meilisearch before the winter rush.",
+    "comments": [
+      {
+        "user": {
+          "login": "priyan"
+        },
+        "body": "Pilot index looks good.",
+        "created_at": "2026-09-11T12:00:00Z"
+      }
+    ]
+  },
+  {
+    "number": 47,
+    "title": "Kiosk pilot go/no-go",
+    "state": "closed",
+    "user": {
+      "login": "meerak"
+    },
+    "labels": [
+      "kiosk"
+    ],
+    "body": "Kiosk pilot cleared the go bar in August.",
+    "comments": [
+      {
+        "user": {
+          "login": "aaravm"
+        },
+        "body": "Go.",
+        "created_at": "2026-08-22T09:00:00Z"
+      }
+    ]
+  },
+  {
+    "number": 52,
+    "title": "Payments rollback drill",
+    "state": "open",
+    "user": {
+      "login": "aaravm"
+    },
+    "labels": [
+      "payments"
+    ],
+    "body": "Rollback drill moved into the maintenance window.",
+    "comments": []
+  }
+]

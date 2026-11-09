@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "chat:#general@1760184000.005",
+ "ceiling_kind": "chat",
+ "claims": [
+  {
+   "type": "open question",
+   "text": "Is the kiosk still needed after the app rollout?",
+   "quote": "Is the kiosk still needed after the app rollout?",
+   "subject": "kiosk",
+   "attribute": "necessity",
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

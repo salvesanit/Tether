@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "chat:#general@1759665600.004",
+ "ceiling_kind": "chat",
+ "claims": [
+  {
+   "type": "repeated problem",
+   "text": "Members hit the same 429 retry loop when RSVP opens.",
+   "quote": "Members hit the same 429 retry loop when RSVP opens.",
+   "subject": "members rsvp",
+   "attribute": "429 retry loop",
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

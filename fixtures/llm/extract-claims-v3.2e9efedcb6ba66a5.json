@@ -1,0 +1,24 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "commit:48b856fc1f92408b45d595e15c146b1906f4e0dc",
+ "ceiling_kind": "commit",
+ "claims": [
+  {
+   "type": "decision",
+   "text": "primary keys are UUIDs, chosen over auto-increment integers",
+   "quote": "primary keys are UUIDs, chosen over auto-increment integers",
+   "subject": "primary keys",
+   "attribute": "id type",
+   "value": "UUIDs",
+   "rejected_options": [
+    "auto-increment integers"
+   ],
+   "gap_subject": "key decisions",
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:notes/2026-09-17.md#P2",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "open question",
+   "text": "When do we rotate the SMTP credentials?",
+   "quote": "When do we rotate the SMTP credentials?",
+   "subject": "smtp credentials",
+   "attribute": "rotation",
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

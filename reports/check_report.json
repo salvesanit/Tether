@@ -1,0 +1,92 @@
+{
+  "report": "check_report \u2014 Tether Round 2",
+  "commit": "HEAD",
+  "date": "2026-11-09",
+  "model_mode": "replay",
+  "measured_on": "the synthetic project (Aster)",
+  "project_id": "p_a9b214dce35e8f06",
+  "run": {
+    "id": "run_59184501b52d8b38",
+    "extractor": "replay",
+    "extractor_chunks": {
+      "rules": 0,
+      "replay": 165,
+      "live": 0
+    },
+    "model_id": null,
+    "prompt_version": null
+  },
+  "counts": {
+    "spans": 165,
+    "candidates": 80,
+    "kept": 60,
+    "dropped": 20,
+    "dropped_by_reason": {
+      "quote_not_found": 20
+    },
+    "conflicts": 6,
+    "gaps": 6,
+    "extractor": "replay",
+    "extractor_chunks": {
+      "rules": 0,
+      "replay": 165,
+      "live": 0
+    },
+    "model_id": null,
+    "confidence_floor_kept": 49,
+    "redactions": 5,
+    "quarantined": 1,
+    "source_errors": [],
+    "not_read_sources": [
+      {
+        "name": "chat.json \u00b7 #hr-leave",
+        "reason": "HR channel \u2014 excluded by policy"
+      },
+      {
+        "name": "chat.json \u00b7 #private-aarav",
+        "reason": "private channel \u2014 not ours to read"
+      }
+    ],
+    "duration_ms": 306,
+    "steps": [
+      {
+        "step": "read & clean",
+        "detail": "165 spans from 19 sources",
+        "ms": 149
+      },
+      {
+        "step": "pull claims",
+        "detail": "80 candidates",
+        "ms": 4
+      },
+      {
+        "step": "check (quote, caps)",
+        "detail": "60 kept \u00b7 20 dropped",
+        "ms": 28
+      },
+      {
+        "step": "group",
+        "detail": "60 claims from 60 quotes",
+        "ms": 65
+      },
+      {
+        "step": "conflicts",
+        "detail": "6 open",
+        "ms": 8
+      },
+      {
+        "step": "fill the queue",
+        "detail": "6 gaps, risk order set",
+        "ms": 48
+      }
+    ]
+  },
+  "dropped_by_reason": {
+    "quote_not_found": 20
+  },
+  "planted": {
+    "facts": 61,
+    "fakes": 20
+  },
+  "note": "In replay mode the model call is recorded; this report shows the checks and the plumbing work. Counts only \u2014 never a loss rate."
+}

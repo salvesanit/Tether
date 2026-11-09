@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:notes/2026-10-28.md#P4",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "open question",
+   "text": "What retention applies to check-in logs?",
+   "quote": "What retention applies to check-in logs?",
+   "subject": "check-in logs",
+   "attribute": "retention",
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

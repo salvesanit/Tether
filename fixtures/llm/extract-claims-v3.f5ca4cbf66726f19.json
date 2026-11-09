@@ -1,0 +1,34 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:notes/2026-09-03.md#P1",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "decision",
+   "text": "The rate limit is 60 requests per minute.",
+   "quote": "The rate limit is 60 requests per minute.",
+   "subject": "rate limit",
+   "attribute": "requests per minute",
+   "value": "60 per minute",
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  },
+  {
+   "type": "decision",
+   "text": "The rate limit is 60 requests per hour.",
+   "quote": "The rate limit is 60 requests per hour.",
+   "subject": null,
+   "attribute": null,
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

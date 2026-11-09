@@ -1,0 +1,46 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:src/queue.js#L1-7",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "dependency",
+   "text": "Depends on Redis 7 for the job queue.",
+   "quote": "Depends on Redis 7 for the job queue.",
+   "subject": "queue",
+   "attribute": "cache",
+   "value": "Redis 7",
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  },
+  {
+   "type": "risk",
+   "text": "might lose jobs if Redis eviction kicks in.",
+   "quote": "might lose jobs if Redis eviction kicks in.",
+   "subject": "queue worker",
+   "attribute": "eviction",
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  },
+  {
+   "type": "decision",
+   "text": "Live check-in updates use Server-Sent Events, chosen over WebSockets.",
+   "quote": "Live check-in updates use Server-Sent Events, chosen over WebSockets.",
+   "subject": null,
+   "attribute": null,
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

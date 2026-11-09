@@ -1,0 +1,140 @@
+{
+  "project": {
+    "name": "Aster \u2014 campus club events app",
+    "codename": "Aster",
+    "synthetic": true
+  },
+  "consent": "I am allowed to use these sources, and they contain no confidential workplace material that I have no permission to share.",
+  "excluded_channels": [
+    "private-aarav",
+    "hr-leave"
+  ],
+  "exclude_reasons": {
+    "private-aarav": "private channel \u2014 not ours to read",
+    "hr-leave": "HR channel \u2014 excluded by policy"
+  },
+  "sources": [
+    {
+      "path": "repo.bundle",
+      "kind": "repo",
+      "label": "internal",
+      "sha256": "307dfa68de1a4a2660cbcea63149826e76d4017dba9e5ffc86c8bf6fdd3eb278"
+    },
+    {
+      "path": "notes/2026-10-02.md",
+      "kind": "notes",
+      "label": "restricted",
+      "sha256": "4ddb61521d96e44c458e3dc8007006fb5783f9855a7931599045953eab31b68e"
+    },
+    {
+      "path": "notes/2026-09-28.md",
+      "kind": "notes",
+      "label": "confidential",
+      "sha256": "bae655cda91c5f04425e32c14b85206b77a4bd4a3d9fed188e2cf4eb6ef44fda"
+    },
+    {
+      "path": "notes/2026-06-18.md",
+      "kind": "notes",
+      "label": "open",
+      "sha256": "e35c359d70056d6db27bc96f0dd0cbdda75622f52541133ff34a74bfeeaf6222"
+    },
+    {
+      "path": "notes/2026-07-16.md",
+      "kind": "notes",
+      "label": "open",
+      "sha256": "1181adc1644c7dd7fe71d8c9d971a0425bfbb22ff681c3befddc3121cecf8e4d"
+    },
+    {
+      "path": "notes/2026-08-05.md",
+      "kind": "notes",
+      "label": "open",
+      "sha256": "7388b831eb8441de5791ba09065e8c125143880b2cd0f791bc852273008e4df4"
+    },
+    {
+      "path": "notes/2026-08-12.md",
+      "kind": "notes",
+      "label": "open",
+      "sha256": "eed993dc784883200ae662c083b14c5f6abeb3d63e1875efe0ee7335cdaad1a9"
+    },
+    {
+      "path": "notes/2026-08-19.md",
+      "kind": "notes",
+      "label": "open",
+      "sha256": "07d3736522a85a73e7c3531e5699ba2949a003284edb396bdff4daf139a7fff1"
+    },
+    {
+      "path": "notes/2026-08-26.md",
+      "kind": "notes",
+      "label": "open",
+      "sha256": "e1458193c2170093a3ea7fd2447666c1562c31228e88fc9180a672885c6b8403"
+    },
+    {
+      "path": "notes/2026-09-03.md",
+      "kind": "notes",
+      "label": "open",
+      "sha256": "37cb0f30c1c6ed9f3db961938a96d24c483a223db815d87c6495ffd0e1bd2499"
+    },
+    {
+      "path": "notes/2026-09-14.md",
+      "kind": "notes",
+      "label": "open",
+      "sha256": "6165c29e1bcef535384ec0d42349ad61cedd6ad8653c1303cfe3cab8e1838ef0"
+    },
+    {
+      "path": "notes/2026-09-17.md",
+      "kind": "notes",
+      "label": "open",
+      "sha256": "15dccb21cd1b4058147e626e65c9ecc8f495e5053dfe991f49b1b7c0be2d4ae8"
+    },
+    {
+      "path": "notes/2026-09-21.md",
+      "kind": "notes",
+      "label": "open",
+      "sha256": "765b8955b57e2cf59e5310fd068c1100416b6b3e7c4def086010052af8a6164e"
+    },
+    {
+      "path": "notes/2026-09-24.md",
+      "kind": "notes",
+      "label": "open",
+      "sha256": "b0a52dce8021c114483fc2e9c63bbd4b4e3e3ddef3bae71a4d2b093f3d9cb756"
+    },
+    {
+      "path": "notes/2026-10-07.md",
+      "kind": "notes",
+      "label": "open",
+      "sha256": "ff1ccf947e8e985feda20ca4d875ecbc58e8aa6e9f7a0cf5919f1fce2aabeda7"
+    },
+    {
+      "path": "notes/2026-10-28.md",
+      "kind": "notes",
+      "label": "open",
+      "sha256": "9db20f21fdd1d23454889a229ac9187fb511e9a8f8c1f40e097b6d5fb28a51d1"
+    },
+    {
+      "path": "chat.json",
+      "kind": "chat",
+      "label": "internal",
+      "excluded_channels": [
+        "private-aarav",
+        "hr-leave"
+      ],
+      "exclude_reasons": {
+        "private-aarav": "private channel \u2014 not ours to read",
+        "hr-leave": "HR channel \u2014 excluded by policy"
+      },
+      "sha256": "393d29568100f65b648ccfcbba58c8d55510e04653a56983241a82e51143dfe1"
+    },
+    {
+      "path": "issues.json",
+      "kind": "issues",
+      "label": "internal",
+      "sha256": "a16037a761797ee6417dd1029a94ada97ac6406c1e5652d66ef0167587e65d45"
+    },
+    {
+      "path": "prs.json",
+      "kind": "prs",
+      "label": "internal",
+      "sha256": "f5018b48eab10108449eab1a4b016e85646924d385b6a95ed106f5035e158aab"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+# build/runtime state — never committed
+__pycache__/
+*.pyc
+tether.db
+tether.db-shm
+tether.db-wal
+var/
+.pytest_cache/
+.venv/
+venv/
+node_modules/
+# local-only scratch
+*.log
+.DS_Store

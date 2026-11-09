@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:notes/2026-10-28.md#P2",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "next step",
+   "text": "Rotate the database password before the public launch.",
+   "quote": "Rotate the database password before the public launch.",
+   "subject": "database password",
+   "attribute": "rotation",
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

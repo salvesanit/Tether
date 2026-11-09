@@ -1,0 +1,34 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:notes/2026-08-12.md#P3",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "decision",
+   "text": "We deploy on Fridays after 6pm.",
+   "quote": "We deploy on Fridays after 6pm.",
+   "subject": "deploy",
+   "attribute": "day",
+   "value": "Friday",
+   "rejected_options": [],
+   "gap_subject": "deploy",
+   "has_issue_ref": false,
+   "confidence": 0.9
+  },
+  {
+   "type": "decision",
+   "text": "We deploy on Saturdays after 6pm.",
+   "quote": "We deploy on Saturdays after 6pm.",
+   "subject": null,
+   "attribute": null,
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

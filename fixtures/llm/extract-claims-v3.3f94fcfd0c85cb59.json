@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "issue:12#c1",
+ "ceiling_kind": "issue_comment",
+ "claims": [
+  {
+   "type": "owner",
+   "text": "Priya owns the auth service.",
+   "quote": "Priya owns the auth service.",
+   "subject": "auth service",
+   "attribute": "owner",
+   "value": "Priya",
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

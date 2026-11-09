@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "chat:#dev@1760385600.105",
+ "ceiling_kind": "chat",
+ "claims": [
+  {
+   "type": "risk",
+   "text": "Payment webhook has no idempotency keys, might double-charge members.",
+   "quote": "Payment webhook has no idempotency keys, might double-charge members.",
+   "subject": "payment webhook",
+   "attribute": "idempotency",
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

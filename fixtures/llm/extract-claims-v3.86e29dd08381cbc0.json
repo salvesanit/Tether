@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:notes/2026-09-24.md#P2",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "repeated problem",
+   "text": "The deploy script fails again when the changelog is stale.",
+   "quote": "The deploy script fails again when the changelog is stale.",
+   "subject": "deploy script",
+   "attribute": "changelog",
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

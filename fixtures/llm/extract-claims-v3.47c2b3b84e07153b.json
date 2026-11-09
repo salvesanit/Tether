@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "chat:#general@1760956800.007",
+ "ceiling_kind": "chat",
+ "claims": [
+  {
+   "type": "next step",
+   "text": "Write the on-call runbook handover before Aarav leaves.",
+   "quote": "Write the on-call runbook handover before Aarav leaves.",
+   "subject": "on-call runbook",
+   "attribute": "handover",
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:notes/2026-08-19.md#P2",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "risk",
+   "text": "Check-in bursts at event start might overload the API.",
+   "quote": "Check-in bursts at event start might overload the API.",
+   "subject": "check-in",
+   "attribute": "load",
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "pr:23#body",
+ "ceiling_kind": "unmerged_pr",
+ "claims": [
+  {
+   "type": "next step",
+   "text": "Backport the webhook backoff fix to 2.0.x.",
+   "quote": "Backport the webhook backoff fix to 2.0.x.",
+   "subject": "webhook backoff fix",
+   "attribute": "backport",
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": "open work and branches",
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

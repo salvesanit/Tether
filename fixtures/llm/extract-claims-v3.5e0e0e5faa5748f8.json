@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:notes/2026-10-07.md#P1",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "repeated problem",
+   "text": "The check-in scanner double-fires again on fast re-entry.",
+   "quote": "The check-in scanner double-fires again on fast re-entry.",
+   "subject": "check-in scanner",
+   "attribute": "double fire",
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": "known issues and workarounds",
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

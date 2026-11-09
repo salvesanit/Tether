@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "issue:15#c2",
+ "ceiling_kind": "issue_comment",
+ "claims": [
+  {
+   "type": "owner",
+   "text": "Owner update: Rohan owns notifications.",
+   "quote": "Owner update: Rohan owns notifications.",
+   "subject": "notifications",
+   "attribute": "owner",
+   "value": "Rohan",
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

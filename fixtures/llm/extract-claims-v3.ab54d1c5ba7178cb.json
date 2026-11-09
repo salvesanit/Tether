@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "pr:17#body",
+ "ceiling_kind": "merged_pr",
+ "claims": [
+  {
+   "type": "next step",
+   "text": "Payments cutover happens on 2026-11-20.",
+   "quote": "Payments cutover happens on 2026-11-20.",
+   "subject": null,
+   "attribute": null,
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

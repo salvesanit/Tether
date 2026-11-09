@@ -1,0 +1,34 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:notes/2026-08-19.md#P1",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "owner",
+   "text": "Meera owns the check-in kiosk flow.",
+   "quote": "Meera owns the check-in kiosk flow.",
+   "subject": "check-in kiosk flow",
+   "attribute": "owner",
+   "value": "Meera",
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  },
+  {
+   "type": "dependency",
+   "text": "The design system ships as Figma tokens v3.",
+   "quote": "The design system ships as Figma tokens v3.",
+   "subject": null,
+   "attribute": null,
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

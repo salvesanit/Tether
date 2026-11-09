@@ -1,0 +1,82 @@
+[
+  {
+    "number": 17,
+    "title": "feat(auth): JWT refresh rotation",
+    "state": "closed",
+    "merged_at": "2026-07-20T12:00:00Z",
+    "merged": true,
+    "user": {
+      "login": "priyan"
+    },
+    "body": "Refresh tokens rotate every 7 days.",
+    "comments": []
+  },
+  {
+    "number": 18,
+    "title": "chore(ci): pnpm store cache",
+    "state": "closed",
+    "merged_at": "2026-08-08T12:00:00Z",
+    "merged": true,
+    "user": {
+      "login": "rohani"
+    },
+    "body": "Caches the pnpm store on runners.",
+    "comments": []
+  },
+  {
+    "number": 21,
+    "title": "release: 2.0.x line",
+    "state": "closed",
+    "merged_at": "2026-09-19T12:00:00Z",
+    "merged": true,
+    "user": {
+      "login": "aaravm"
+    },
+    "body": "Release branch hygiene for the 2.0.x line.",
+    "comments": [
+      {
+        "user": {
+          "login": "aaravm"
+        },
+        "body": "We cut releases from release/2.x.",
+        "created_at": "2026-09-18T12:00:00Z"
+      }
+    ]
+  },
+  {
+    "number": 23,
+    "title": "fix(webhook): add retry backoff",
+    "state": "open",
+    "merged_at": null,
+    "merged": false,
+    "user": {
+      "login": "meerak"
+    },
+    "body": "Backport the webhook backoff fix to 2.0.x.",
+    "comments": []
+  },
+  {
+    "number": 26,
+    "title": "feat(kiosk): QR fallback",
+    "state": "open",
+    "merged_at": null,
+    "merged": false,
+    "user": {
+      "login": "meerak"
+    },
+    "body": "Adds a manual check-in code for slow networks.",
+    "comments": []
+  },
+  {
+    "number": 29,
+    "title": "docs: onboarding refresh",
+    "state": "closed",
+    "merged_at": "2026-10-05T12:00:00Z",
+    "merged": true,
+    "user": {
+      "login": "rohani"
+    },
+    "body": "Rewrites onboarding for the pnpm workspace.",
+    "comments": []
+  }
+]

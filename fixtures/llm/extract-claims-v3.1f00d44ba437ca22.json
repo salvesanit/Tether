@@ -1,0 +1,22 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:README.md#L3-3",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "dependency",
+   "text": "Aster requires Node 20 LTS to build and run.",
+   "quote": "Aster requires Node 20 LTS to build and run.",
+   "subject": "build and run",
+   "attribute": "toolchain",
+   "value": "Node 20 LTS",
+   "rejected_options": [],
+   "gap_subject": "build and run",
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

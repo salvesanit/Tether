@@ -1,0 +1,24 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:notes/2026-08-26.md#P2",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "decision",
+   "text": "Live check-in updates use Server-Sent Events, chosen over WebSockets.",
+   "quote": "Live check-in updates use Server-Sent Events, chosen over WebSockets.",
+   "subject": "check-in feed",
+   "attribute": "transport",
+   "value": "Server-Sent Events",
+   "rejected_options": [
+    "WebSockets"
+   ],
+   "gap_subject": "key decisions",
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

@@ -1,0 +1,48 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:notes/2026-08-12.md#P2",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "decision",
+   "text": "The database is PostgreSQL, chosen over MongoDB to keep table joins.",
+   "quote": "The database is PostgreSQL, chosen over MongoDB to keep table joins.",
+   "subject": "database",
+   "attribute": "engine",
+   "value": "PostgreSQL",
+   "rejected_options": [
+    "MongoDB"
+   ],
+   "gap_subject": "key decisions",
+   "has_issue_ref": false,
+   "confidence": 0.9
+  },
+  {
+   "type": "decision",
+   "text": "We migrated to MongoDB in March 2026.",
+   "quote": "We migrated to MongoDB in March 2026.",
+   "subject": null,
+   "attribute": null,
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  },
+  {
+   "type": "decision",
+   "text": "The database is PostgreSQL, chosen over Cassandra to keep table joins.",
+   "quote": "The database is PostgreSQL, chosen over Cassandra to keep table joins.",
+   "subject": null,
+   "attribute": null,
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

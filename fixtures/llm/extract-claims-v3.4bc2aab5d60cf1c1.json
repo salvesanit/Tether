@@ -1,0 +1,36 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:notes/2026-08-05.md#P1",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "decision",
+   "text": "Password hashing uses bcrypt, chosen over sha256.",
+   "quote": "Password hashing uses bcrypt, chosen over sha256.",
+   "subject": "password hashing",
+   "attribute": "algorithm",
+   "value": "bcrypt",
+   "rejected_options": [
+    "sha256"
+   ],
+   "gap_subject": "key decisions",
+   "has_issue_ref": false,
+   "confidence": 0.9
+  },
+  {
+   "type": "decision",
+   "text": "Password hashing uses bcrypt, chosen over md5.",
+   "quote": "Password hashing uses bcrypt, chosen over md5.",
+   "subject": null,
+   "attribute": null,
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

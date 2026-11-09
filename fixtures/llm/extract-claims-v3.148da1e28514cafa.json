@@ -1,0 +1,24 @@
+{
+ "provenance": "handwritten-reference",
+ "generated": "2026-11-09T17:30:23Z",
+ "model_id": null,
+ "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
+ "chunk_locator": "file:notes/2026-09-03.md#P5",
+ "ceiling_kind": "file",
+ "claims": [
+  {
+   "type": "decision",
+   "text": "Search uses Meilisearch, chosen over Elasticsearch for a smaller footprint.",
+   "quote": "Search uses Meilisearch, chosen over Elasticsearch for a smaller footprint.",
+   "subject": "search",
+   "attribute": "engine",
+   "value": "Meilisearch",
+   "rejected_options": [
+    "Elasticsearch"
+   ],
+   "gap_subject": "key decisions",
+   "has_issue_ref": false,
+   "confidence": 0.9
+  }
+ ]
+}

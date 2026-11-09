@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tether — the handover that holds</title>
+<meta name="description" content="Tether rebuilds one project's state from authorised sources — every line checked against its source, a human decides, and a named person signs.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230E5F5B'/%3E%3Cpath d='M10 22c4-8 8-8 12 0' stroke='%23F3EDDF' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3Cpath d='M10 10c4 8 8 8 12 0' stroke='%23E4B33C' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="rail" aria-label="Tether navigation">
+    <a class="brand" href="/" data-nav="/">
+      <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#0E5F5B"/><path d="M10 22c4-8 8-8 12 0" stroke="#F3EDDF" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M10 10c4 8 8 8 12 0" stroke="#E4B33C" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+      <span class="brand-word">Tether<small>the handover that holds</small></span>
+    </a>
+
+    <div class="project-card" id="rail-project" hidden>
+      <div class="project-card-kicker">PROJECT</div>
+      <div class="project-card-name" id="rail-project-name">—</div>
+      <div class="project-card-state"><span class="state-pill" id="rail-state">scoped</span></div>
+    </div>
+
+    <nav class="steps" id="rail-steps" aria-label="Workflow steps"></nav>
+
+    <div class="rail-links">
+      <a href="/judge" data-nav="/judge">Judge guide <span class="kbd">?</span></a>
+      <a href="/docs" target="_blank" rel="noopener">API &amp; OpenAPI</a>
+    </div>
+
+    <div class="rail-foot">
+      <div class="role-kicker">SIGNED IN AS <span class="demo-chip">DEMO MODE</span></div>
+      <div class="role-list" id="role-list" role="radiogroup" aria-label="Switch role"></div>
+      <p class="role-note">The demo has no passwords. Switching role re-reads everything server-side; restricted rows disappear for roles that may not see them.</p>
+    </div>
+  </aside>
+
+  <main class="page" id="app" tabindex="-1"></main>
+</div>
+
+<div class="modal-backdrop" id="modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Citation">
+    <div class="modal-head">
+      <div>
+        <div class="modal-locator" id="cite-locator">—</div>
+        <div class="modal-meta" id="cite-meta">—</div>
+      </div>
+      <button class="icon-btn" id="cite-close" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="cite-redactions" id="cite-redactions" hidden></div>
+      <pre class="cite-text" id="cite-text"></pre>
+    </div>
+  </div>
+</div>
+
+<div class="toast-rack" id="toasts" aria-live="polite"></div>
+<script src="/app.js" defer></script>
+</body>
+</html>
