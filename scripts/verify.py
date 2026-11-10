@@ -175,16 +175,23 @@ def main() -> int:
 
 
 def _leak_probe(client, pid, key, db):
-    needles = list(key["secrets"]) + list(key["personal_data"]) + list(key["honeytokens"])
-    for c in db.list_claims(pid):
-        if c["label"] in ("restricted", "confidential"):
-            needles.append(c["text"])
-            if c["value"]:
-                needles.append(c["value"])
-            for e in db.list_evidence(c["id"]):
-                if len(e["quote"]) >= 12:
-                    needles.append(e["quote"])
-    needles = [n for n in needles if n]
+    from backend.app.policy.labels import role_labels
+    base = list(key["secrets"]) + list(key["personal_data"]) + list(key["honeytokens"])
+    all_claims = db.list_claims(pid)
+    needles_by_role = {}
+    for role in ("successor", "leaver", "reviewer", "admin"):
+        readable = role_labels(role)
+        n = list(base)
+        for c in all_claims:
+            if c["label"] not in readable:  # labels this role may not cross — probe for them only there
+                n.append(c["text"])
+                if c["value"]:
+                    n.append(c["value"])
+                for e in db.list_evidence(c["id"]):
+                    if len(e["quote"]) >= 12:
+                        n.append(e["quote"])
+        needles_by_role[role] = [x for x in n if x]
+    max_needles = max(len(v) for v in needles_by_role.values())
     get_routes = ["/", "/judge", "/api/projects", f"/api/projects/{pid}",
                   f"/api/projects/{pid}/sources", f"/api/projects/{pid}/claims",
                   f"/api/projects/{pid}/conflicts", f"/api/projects/{pid}/gaps",
@@ -196,6 +203,8 @@ def _leak_probe(client, pid, key, db):
     roles = ["successor", "leaver", "reviewer", "admin"]
     rows, failed = [], []
     for role in roles:
+        # reviewer/admin may cross every boundary — no content probe applies (status still recorded)
+        needles = needles_by_role[role] if role in ("successor", "leaver") else []
         for path in get_routes:
             r = client.get(path, headers={"X-Tether-Role": role})
             hits = [n[:36] for n in needles if n in r.text]
@@ -203,15 +212,22 @@ def _leak_probe(client, pid, key, db):
             if not ok and role in ("successor", "leaver"):
                 failed.append((path, role, hits))
             rows.append({"role": role, "path": path, "status": r.status_code, "hits": len(hits), "ok": ok})
-    # direct span IDs of restricted/confidential evidence, as successor
-    for c in db.list_claims(pid):
-        if c["label"] in ("restricted", "confidential"):
+    # direct span IDs of evidence behind claims the role may not read — again role-aware (leaver: confidential only)
+    for role in ("successor", "leaver"):
+        readable = role_labels(role)
+        probed = set()
+        for c in all_claims:
+            if c["label"] in readable:
+                continue
             for e in db.list_evidence(c["id"]):
-                r = client.get(f"/api/spans/{e['span_id']}", headers={"X-Tether-Role": "successor"})
-                rows.append({"role": "successor", "path": f"/api/spans/{e['span_id'][:18]}…", "status": r.status_code, "hits": 0, "ok": r.status_code == 403})
+                if e["span_id"] in probed:
+                    continue
+                probed.add(e["span_id"])
+                r = client.get(f"/api/spans/{e['span_id']}", headers={"X-Tether-Role": role})
+                rows.append({"role": role, "path": f"/api/spans/{e['span_id'][:18]}…", "status": r.status_code, "hits": 0, "ok": r.status_code == 403})
                 if r.status_code != 403:
-                    failed.append((f"/api/spans/{e['span_id']}", "successor", ["span readable"]))
-    return {"rows": rows, "failed": failed, "needles": len(needles)}
+                    failed.append((f"/api/spans/{e['span_id']}", role, ["span readable"]))
+    return {"rows": rows, "failed": failed, "needles": max_needles}
 
 
 def _write_check_report(path, result, project, counts, key, date, sha, mode):
