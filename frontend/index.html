@@ -10,7 +10,7 @@
 <title>Tether — the handover that holds</title>
 <meta name="description" content="Tether rebuilds one project's state from authorised sources — every line checked against its source, a human decides, and a named person signs.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23F5F6F8'/%3E%3Cpath d='M10 22c4-8 8-8 12 0' stroke='%230D0F13' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3Cpath d='M10 10c4 8 8 8 12 0' stroke='%230D0F13' stroke-opacity='.5' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/style.css?v=8">
 </head>
 <body>
 <div class="shell">
@@ -34,9 +34,10 @@
         <span class="theme-btn-dot" aria-hidden="true"></span>
         <span class="theme-btn-text"><b id="theme-name">Dark</b></span>
       </button>
-      <label class="role-wrap" title="Demo mode — switching role re-reads everything server-side">ROLE:
-        <select id="role-select" class="role-select" aria-label="Switch role"></select>
-      </label>
+      <div class="role-wrap" title="Demo mode — switching role re-reads everything server-side">
+        <span class="role-label">ROLE:</span>
+        <div class="role-picker" id="role-picker"></div>
+      </div>
       <a class="judge-link" href="/judge" data-nav="/judge">Judge Guide</a>
     </div>
   </header>
@@ -67,6 +68,6 @@
 </div>
 
 <div class="toast-rack" id="toasts" aria-live="polite"></div>
-<script src="/app.js" defer></script>
+<script src="/app.js?v=3" defer></script>
 </body>
 </html>

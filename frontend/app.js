@@ -89,6 +89,10 @@ function nav(path) { history.pushState({}, "", path); render(); window.scrollTo(
 document.addEventListener("click", e => {
   const a = e.target.closest("[data-nav]");
   if (a) { e.preventDefault(); nav(a.getAttribute("data-nav")); }
+  if (!e.target.closest(".role-picker")) closeRoleMenu();
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") closeRoleMenu(true);
 });
 window.addEventListener("popstate", render);
 
@@ -106,15 +110,70 @@ const STEPS6 = [
 ];
 const stateIdx = p => p ? STATE_ORDER.indexOf(p.state) : -1;
 function currentViewName() { return parseRoute().name; }
+function closeRoleMenu(restoreFocus = false) {
+  const picker = $("#role-picker");
+  if (!picker) return;
+  const trigger = $(".role-trigger", picker);
+  const menu = $(".role-menu", picker);
+  if (!trigger || !menu || menu.hidden) return;
+  menu.hidden = true;
+  trigger.setAttribute("aria-expanded", "false");
+  if (restoreFocus) trigger.focus();
+}
 function renderChrome(project) {
-  // role select in the top bar
-  const sel = $("#role-select");
-  if (sel) {
-    if (!sel.options.length) {
-      sel.innerHTML = ROLES.map(r => `<option value="${r.id}">${esc(r.name)} · ${esc(r.job.split(" — ")[0])}</option>`).join("");
-    }
-    sel.value = store.role;
-    sel.onchange = () => { store.role = sel.value; render(); };
+  const picker = $("#role-picker");
+  if (picker) {
+    const activeRole = ROLES.find(role => role.id === store.role) || ROLES[0];
+    picker.innerHTML = `
+      <button class="role-trigger" type="button" aria-label="Switch role" aria-haspopup="listbox" aria-expanded="false" aria-controls="role-menu">
+        <span>${esc(activeRole.name)} · ${esc(activeRole.job.split(" — ")[0])}</span>
+        <span class="role-chevron" aria-hidden="true"></span>
+      </button>
+      <div class="role-menu" id="role-menu" role="listbox" aria-label="Choose demo role" hidden>
+        ${ROLES.map(role => `<button class="role-option" type="button" role="option" aria-selected="${activeRole.id === role.id}" data-role="${role.id}">
+          <span class="role-option-name">${esc(role.name)}</span><span class="role-option-job">${esc(role.job.split(" — ")[0])}</span>
+        </button>`).join("")}
+      </div>`;
+    const trigger = $(".role-trigger", picker);
+    const menu = $(".role-menu", picker);
+    const options = $$(".role-option", menu);
+    const open = (focusIndex = options.findIndex(option => option.getAttribute("aria-selected") === "true")) => {
+      const rect = trigger.getBoundingClientRect();
+      const menuWidth = Math.max(224, rect.width);
+      const menuHeight = Math.min(196, window.innerHeight - 16);
+      menu.style.left = `${Math.max(8, Math.min(rect.right - menuWidth, window.innerWidth - menuWidth - 8))}px`;
+      let menuTop = rect.bottom + 6;
+      if (menuTop + menuHeight > window.innerHeight - 8) menuTop = rect.top - menuHeight - 6;
+      menu.style.top = `${Math.max(8, menuTop)}px`;
+      menu.style.minWidth = `${menuWidth}px`;
+      menu.hidden = false;
+      trigger.setAttribute("aria-expanded", "true");
+      options[Math.max(0, focusIndex)]?.focus();
+    };
+    const choose = role => {
+      store.role = role;
+      render();
+    };
+    trigger.addEventListener("click", () => menu.hidden ? open() : closeRoleMenu());
+    trigger.addEventListener("keydown", event => {
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        open(event.key === "ArrowDown" ? 0 : options.length - 1);
+      }
+    });
+    menu.addEventListener("keydown", event => {
+      const currentIndex = options.indexOf(document.activeElement);
+      let nextIndex = currentIndex;
+      if (event.key === "ArrowDown") nextIndex = (currentIndex + 1) % options.length;
+      else if (event.key === "ArrowUp") nextIndex = (currentIndex - 1 + options.length) % options.length;
+      else if (event.key === "Home") nextIndex = 0;
+      else if (event.key === "End") nextIndex = options.length - 1;
+      else if (event.key === "Tab") { closeRoleMenu(); return; }
+      else return;
+      event.preventDefault();
+      options[nextIndex].focus();
+    });
+    options.forEach(option => option.addEventListener("click", () => choose(option.dataset.role)));
   }
   // top navigation links
   const route = currentViewName();
@@ -287,9 +346,14 @@ async function renderConnect(app, project) {
             <td><span class="kind-ic">${KIND_LABEL[s.kind] || "SRC"}</span></td>
             <td><div>${esc(s.name)}</div><div class="small mono">sha256 ${(s.sha256||"").slice(0,12)}…</div></td>
             <td>${isReviewer && !locked
-              ? `<select class="label-select" data-sid="${s.id}" aria-label="Label for ${esc(s.name)}">
-                   ${["open","internal","restricted","confidential"].map(l => `<option value="${l}" ${s.label===l?"selected":""}>${l}</option>`).join("")}
-                 </select>`
+              ? `<div class="label-picker" data-sid="${s.id}">
+                   <button class="label-select" type="button" aria-label="Label for ${esc(s.name)}" aria-haspopup="listbox" aria-expanded="false" aria-controls="label-menu-${s.id}">
+                     <span>${esc(s.label || "unlabelled")}</span><span class="label-select-chevron" aria-hidden="true"></span>
+                   </button>
+                   <div class="label-menu" id="label-menu-${s.id}" role="listbox" aria-label="Source label" hidden>
+                     ${["open","internal","restricted","confidential"].map(l => `<button class="label-option" type="button" role="option" aria-selected="${s.label===l}" data-value="${l}">${l}</button>`).join("")}
+                   </div>
+                 </div>`
               : `<span class="badge badge-label ${s.label||""}" title="${esc(LABEL_HELP[s.label]||"")}">${esc(s.label||"unlabelled")}</span>`}
             </td>
             <td><span class="status-chip ${s.read_state==="read" ? "status-read" : "status-pending"}">${s.read_state}</span></td>
@@ -337,14 +401,72 @@ async function renderConnect(app, project) {
     </div>
   </div>`;
 
-  $$(".label-select", app).forEach(sel => sel.addEventListener("change", async () => {
-    try {
-      const fd = new FormData(); fd.append("label", sel.value);
-      await api(`/api/projects/${project.id}/sources/${sel.dataset.sid}`, { method: "PUT", body: fd });
-      toast(`label → ${sel.value}`, "ok");
-      render();
-    } catch (e) { toast(errText(e), "error"); render(); }
-  }));
+  $$(".label-picker", app).forEach(picker => {
+    const trigger = $(".label-select", picker);
+    const menu = $(".label-menu", picker);
+    const options = $$(".label-option", menu);
+    const close = (restoreFocus = false) => {
+      menu.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+      if (restoreFocus) trigger.focus();
+    };
+    const open = (focusIndex = options.findIndex(option => option.getAttribute("aria-selected") === "true")) => {
+      $$(".label-menu", app).forEach(otherMenu => {
+        if (otherMenu !== menu) {
+          otherMenu.hidden = true;
+          otherMenu.parentElement.querySelector(".label-select").setAttribute("aria-expanded", "false");
+        }
+      });
+      const rect = trigger.getBoundingClientRect();
+      const menuWidth = Math.max(168, rect.width);
+      const menuHeight = Math.min(172, window.innerHeight - 16);
+      menu.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - menuWidth - 8))}px`;
+      let menuTop = rect.bottom + 6;
+      if (menuTop + menuHeight > window.innerHeight - 8) menuTop = rect.top - menuHeight - 6;
+      menu.style.top = `${Math.max(8, menuTop)}px`;
+      menu.style.minWidth = `${menuWidth}px`;
+      menu.hidden = false;
+      trigger.setAttribute("aria-expanded", "true");
+      options[Math.max(0, focusIndex)]?.focus();
+    };
+    trigger.addEventListener("click", () => menu.hidden ? open() : close());
+    trigger.addEventListener("keydown", event => {
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        open(event.key === "ArrowDown" ? 0 : options.length - 1);
+      }
+    });
+    menu.addEventListener("keydown", event => {
+      const currentIndex = options.indexOf(document.activeElement);
+      let nextIndex = currentIndex;
+      if (event.key === "ArrowDown") nextIndex = (currentIndex + 1) % options.length;
+      else if (event.key === "ArrowUp") nextIndex = (currentIndex - 1 + options.length) % options.length;
+      else if (event.key === "Home") nextIndex = 0;
+      else if (event.key === "End") nextIndex = options.length - 1;
+      else if (event.key === "Escape") { event.preventDefault(); close(true); return; }
+      else if (event.key === "Tab") { close(); return; }
+      else return;
+      event.preventDefault();
+      options[nextIndex].focus();
+    });
+    options.forEach(option => option.addEventListener("click", async () => {
+      const label = option.dataset.value;
+      try {
+        const fd = new FormData(); fd.append("label", label);
+        await api(`/api/projects/${project.id}/sources/${picker.dataset.sid}`, { method: "PUT", body: fd });
+        toast(`label → ${label}`, "ok");
+        render();
+      } catch (e) { toast(errText(e), "error"); render(); }
+    }));
+  });
+  app.onclick = event => {
+    if (!event.target.closest(".label-picker")) {
+      $$(".label-menu:not([hidden])", app).forEach(menu => {
+        menu.hidden = true;
+        menu.parentElement.querySelector(".label-select").setAttribute("aria-expanded", "false");
+      });
+    }
+  };
   // PUT expects form data, not JSON
   $("#upload-form").addEventListener("submit", async (ev) => {
     ev.preventDefault();
