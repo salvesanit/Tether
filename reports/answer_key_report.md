@@ -1,7 +1,7 @@
-<!-- commit a261b138a879 · 2026-11-09 · model mode: replay · measured on the synthetic project -->
+<!-- commit 05b0538eb6ee · 2026-11-10 · model mode: replay · measured on the synthetic project -->
 # Answer-key report — Aster (synthetic)
 
-commit `a261b138a879` · 2026-11-09 · model mode: `replay` · measured on the synthetic project.
+commit `05b0538eb6ee` · 2026-11-10 · model mode: `replay` · measured on the synthetic project.
 
 **Planted:** 61 facts (16 decisions) · 20 fakes · 6 conflicts · 6 gaps
 
@@ -11,12 +11,12 @@ commit `a261b138a879` · 2026-11-09 · model mode: `replay` · measured on the s
 |---|---|---|
 | decision | 16 | 16 |
 | dependency | 8 | 8 |
-| next step | 6 | 8 |
+| next step | 8 | 8 |
 | open question | 7 | 7 |
 | owner | 8 | 8 |
 | repeated problem | 6 | 6 |
 | risk | 8 | 8 |
-| **total** | **59** | **61** |
+| **total** | **61** | **61** |
 
 **Decisions found: 16 of 16** (bar: ≥80%)
 
@@ -43,7 +43,7 @@ commit `a261b138a879` · 2026-11-09 · model mode: `replay` · measured on the s
 | FAKE-LOC-03 | wrong_locator | dropped — quote_not_found |
 | FAKE-LOC-04 | wrong_locator | dropped — quote_not_found |
 | FAKE-LOC-05 | wrong_locator | dropped — quote_not_found |
-| FAKE-LOC-06 | wrong_locator | !!! NOT DROPPED — this would fail CK-1 |
+| FAKE-LOC-06 | wrong_locator | dropped — quote_not_found |
 
 ## Wrongly kept
 
@@ -51,4 +51,4 @@ None — every kept candidate passed the quote check character-for-character.
 
 ## Missed
 
-2 fact(s) not kept; see the claims table.
+None.

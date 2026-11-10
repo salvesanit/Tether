@@ -1,7 +1,7 @@
-<!-- commit a261b138a879 · 2026-11-09 · model mode: replay · measured on the synthetic project -->
+<!-- commit 05b0538eb6ee · 2026-11-10 · model mode: replay · measured on the synthetic project -->
 # Tether — verification report
 
-**Result: PASS** · commit `a261b138a879` · 2026-11-09 · model mode: `replay` · measured on the synthetic project.
+**Result: PASS** · commit `05b0538eb6ee` · 2026-11-10 · model mode: `replay` · measured on the synthetic project.
 
 In replay mode the model call is recorded, so this report shows that the checks and the plumbing work — not that the model is good. Counts only: never a loss rate, never a percent of knowledge captured.
 
@@ -31,7 +31,7 @@ In replay mode the model call is recorded, so this report shows that the checks 
 
 ## Rebuild counts (this run)
 
-spans 165 · candidates 80 · kept 60 · dropped 20 ({'quote_not_found': 20}) · conflicts 6 · gaps 6 · redactions 5 · quarantine 1
+spans 165 · candidates 82 · kept 60 · dropped 21 ({'quote_not_found': 21}) · conflicts 6 · gaps 6 · redactions 5 · quarantine 1
 
 ## Not read
 
