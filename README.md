@@ -23,7 +23,7 @@ Then, in the browser at `http://localhost:8000`:
 5. **Sign off** → the three gates go green; **Sign** freezes `v1.0` with a SHA-256.
 6. Switch role to **Diya Raman** (successor) → **Handover** → six sections, citations, one plain restriction notice.
 
-Two appearance modes: **Dark** (pure black & white, faint white borders — default) and **Colour** (the original paper & ink). Toggle bottom-left in the rail; the choice persists in `localStorage`.
+Two appearance modes: **Dark** (charcoal & ink — near-black canvas, off-white text, faint white borders, green/amber/red semantic accents; default) and **Colour** (the original paper & ink). Toggle at the top-right of the bar; the choice persists in `localStorage`.
 
 Scripted equivalent, end to end on a throwaway database:
 

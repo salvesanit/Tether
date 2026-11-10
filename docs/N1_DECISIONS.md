@@ -20,3 +20,5 @@ Each line is a default the builder chose that is N1's call. Unticked = needs N1.
 | N1-14 | The three Round 3 commitments in [ROUND3_COMMITMENTS.md](ROUND3_COMMITMENTS.md) | proposed by the builder, adopted only if N1 signs | [ ] |
 
 **How to approve:** tick the box, commit with message `N1-n approved — <one line>`; the build re-verifies clean regardless (these are policy knobs, not code paths).
+
+> The sibling build archived at [reference-other-agent/N1_DECISIONS.md](reference-other-agent/N1_DECISIONS.md) ships every box pre-ticked, including the licence. Those are that build's claimed approvals, not this build's — nothing here is approved until N1 ticks it and commits with an `N1-n approved` message.

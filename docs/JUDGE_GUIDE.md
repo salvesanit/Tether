@@ -20,7 +20,7 @@ curl -H "X-Tether-Role: reviewer" http://localhost:8000/api/health
 | Technical depth & reliability (25) | Real parsing, validation, access control, error handling | `make verify` → [reports/verify.md](../reports/verify.md) (per-ID PASS/FAIL), [reports/leak_test_report.md](../reports/leak_test_report.md), [docs/RELIABILITY.md](RELIABILITY.md), `backend/tests/` (48 tests, 1 honest skip) |
 | Progress vs the plan (20) | Each Round 1 commitment marked Done/Partial/Changed/Deferred | [docs/PLAN_VS_BUILD.md](PLAN_VS_BUILD.md) with evidence paths · [docs/CHANGES_FROM_ROUND1.md](CHANGES_FROM_ROUND1.md) |
 | Three improvements proposed (15) | Round 3 commitments | [docs/ROUND3_COMMITMENTS.md](ROUND3_COMMITMENTS.md) |
-| Usability (10) | Next step is obvious to a cold reader | The live preview at :8000, or run locally; `UX-1` checks in `backend/tests/test_e2e1_ux1.py`; [docs/demo/golden_path.md](demo/golden_path.md) |
+| Usability (10) | Next step is obvious to a cold reader | The live preview at :8000, or run locally; top bar + gate stepper (Dark default — charcoal with green/amber/red semantics — or Colour mode, toggle top-right); `UX-1` checks in `backend/tests/test_e2e1_ux1.py`; [docs/demo/golden_path.md](demo/golden_path.md) |
 | D2 — reachable demonstration | Docker package; deployed link | Docker: authored, untested here ([deviation](LIMITATIONS.md)). Deployed URL: [ADD]. Scripted path: `make judge` |
 | D3 — public repo | Clean history, licence | Licence: **pending N1's decision** — see [docs/N1_DECISIONS.md](N1_DECISIONS.md). History: `git log --oneline` |
 | D4 — updated project document | Architecture, data flow, decisions | [docs/ARCHITECTURE.md](ARCHITECTURE.md) + [docs/decisions/](decisions/) |

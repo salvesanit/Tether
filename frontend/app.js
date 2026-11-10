@@ -92,56 +92,58 @@ document.addEventListener("click", e => {
 });
 window.addEventListener("popstate", render);
 
-/* ------------------------------------------------------------------ rail */
-const STEPS = [
-  {n:1, name:"Connect",  sub:"sources & labels", path: id => `/p/${id}/connect`, unlocked: p => !!p},
-  {n:2, name:"Rebuild",  sub:"claims with proof", path: id => `/p/${id}/rebuild`, unlocked: p => p && p.state !== "scoped"},
-  {n:3, name:"Review",   sub:"conflicts & gaps",  path: id => `/p/${id}/review`,  unlocked: p => p && ["rebuilt","in review","signed","shared","received"].includes(p.state)},
-  {n:4, name:"Sign",     sub:"freeze v1.0",       path: id => `/p/${id}/signoff`, unlocked: p => p && ["rebuilt","in review","signed","shared","received"].includes(p.state)},
-  {n:5, name:"Handover", sub:"the successor's view", path: id => `/p/${id}/handover`, unlocked: p => p && ["signed","shared","received"].includes(p.state)},
-];
+/* ------------------------------------------------------------------ top bar */
 const STATE_ORDER = ["scoped","labelled","rebuilt","in review","signed","shared","received"];
-function stepDone(p, n) {
-  if (!p) return false;
-  const idx = STATE_ORDER.indexOf(p.state);
-  const need = {1:"labelled", 2:"rebuilt", 3:"in review", 4:"signed", 5:"received"}[n];
-  return STATE_ORDER.indexOf(p.state) >= STATE_ORDER.indexOf(need);
-}
-async function renderRail(project) {
-  // role switcher
-  $("#role-list").innerHTML = ROLES.map(r => `
-    <button class="role-btn ${r.id===store.role?'active':''}" role="radio" aria-checked="${r.id===store.role}" data-role="${r.id}">
-      <span class="role-ava">${r.initials}</span>
-      <span class="role-meta"><b>${esc(r.name.split(" ")[0])}</b><span>${esc(r.job.split(" — ")[0])}</span></span>
-    </button>`).join("");
-  $$("#role-list .role-btn").forEach(b => b.addEventListener("click", () => { store.role = b.getAttribute("data-role"); render(); }));
-
-  const card = $("#rail-project");
-  if (!project) {
-    card.hidden = true;
-    $("#rail-steps").innerHTML = `<div class="small" style="padding:4px 6px">Load the demo project or bring your own authorised sources to light up the steps.</div>`;
-    return;
+const CHECK = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const LOCK = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="3" y="7" width="10" height="6.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" stroke="currentColor" stroke-width="1.5"/></svg>';
+const STEPS6 = [
+  {n:1, name:"Scope Sources",     cap:"Ingest",   path:id=>`/p/${id}/connect`, unlocked:p=>!!p, done:st=>st>=1, view:"connect"},
+  {n:2, name:"Label Sources",     cap:"Gate 1",   path:id=>`/p/${id}/connect`, unlocked:p=>!!p, done:st=>st>=2, view:"connect"},
+  {n:3, name:"Reconstruct",       cap:"Verify",   path:id=>`/p/${id}/rebuild`, unlocked:p=>p&&p.state!=="scoped", done:st=>st>=3, view:"rebuild"},
+  {n:4, name:"Review Queue",      cap:"Gate 2",   path:id=>`/p/${id}/review`,  unlocked:p=>p&&["rebuilt","in review","signed","shared","received"].includes(p.state), done:st=>st>=4, view:"review"},
+  {n:5, name:"Sign Version",      cap:"Gate 3",   path:id=>`/p/${id}/signoff`, unlocked:p=>p&&["rebuilt","in review","signed","shared","received"].includes(p.state), done:st=>st>=4, view:"signoff"},
+  {n:6, name:"Successor Handover",cap:"Seal",     path:id=>`/p/${id}/handover`,unlocked:p=>p&&["signed","shared","received"].includes(p.state), done:st=>st>=6, view:"handover"},
+];
+const stateIdx = p => p ? STATE_ORDER.indexOf(p.state) : -1;
+function currentViewName() { return parseRoute().name; }
+function renderChrome(project) {
+  // role select in the top bar
+  const sel = $("#role-select");
+  if (sel) {
+    if (!sel.options.length) {
+      sel.innerHTML = ROLES.map(r => `<option value="${r.id}">${esc(r.name)} · ${esc(r.job.split(" — ")[0])}</option>`).join("");
+    }
+    sel.value = store.role;
+    sel.onchange = () => { store.role = sel.value; render(); };
   }
-  card.hidden = false;
-  $("#rail-project-name").textContent = project.name;
-  const pill = $("#rail-state");
-  pill.textContent = project.state;
-  pill.className = "state-pill state-" + project.state.replace(" ", "-");
-
-  const current = parseRoute().name;
-  $("#rail-steps").innerHTML = STEPS.map(s => {
-    const done = stepDone(project, s.n);
+  // top navigation links
+  const route = currentViewName();
+  $$("#topnav a[data-view]").forEach(a => {
+    const view = a.dataset.view;
+    const enabled = !!project;
+    a.setAttribute("data-nav", enabled ? `/p/${project.id}/${view}` : "#");
+    a.href = enabled ? a.getAttribute("data-nav") : "#";
+    a.classList.toggle("disabled", !enabled);
+    a.classList.toggle("current", route === view);
+    if (!enabled) a.setAttribute("aria-disabled", "true"); else a.removeAttribute("aria-disabled");
+  });
+  // horizontal gate stepper
+  const bar = $("#stepper");
+  if (!bar) return;
+  const st = stateIdx(project);
+  let currentAssigned = false;
+  bar.innerHTML = STEPS6.map(s => {
+    const done = st >= 0 && s.done(st);
     const unlocked = s.unlocked(project);
-    const view = {1:"connect",2:"rebuild",3:"review",4:"signoff",5:"handover"}[s.n];
-    const cls = ["step-link", done ? "done" : "", current === view ? "current" : "", unlocked ? "" : "locked"].join(" ");
-    return `<a class="${cls}" href="${unlocked ? s.path(project.id) : "#"}" data-nav="${unlocked ? s.path(project.id) : ""}" ${unlocked ? "" : 'aria-disabled="true"'}>
-      <span class="step-num">${done ? "✓" : s.n}</span>
-      <span><span class="step-name">${s.name}</span><br><span class="step-sub">${s.sub}</span></span>
-    </a>`;
-  }).join("") + (["reviewer","admin"].includes(store.role) ? `
-    <a class="step-link ${current === "admin" ? "current" : ""}" href="/p/${project.id}/admin" data-nav="/p/${project.id}/admin">
-      <span class="step-num">A</span><span><span class="step-name">Admin</span><br><span class="step-sub">sources · log · export</span></span>
-    </a>` : "");
+    let state = done ? "done" : "";
+    if (!done && !currentAssigned) { state = "current"; currentAssigned = true; }
+    else if (!done && currentAssigned) state = unlocked ? "" : "locked";
+    const interactive = unlocked && !done ? true : unlocked;
+    const inner = `<span class="step-num">${done ? CHECK : (interactive ? s.n : LOCK)}</span><span><b>${esc(s.name)}</b><small>${esc(s.cap)}</small></span>`;
+    return `<li>${interactive
+      ? `<a class="step ${state}" href="${s.path(project.id)}" data-nav="${s.path(project.id)}">${inner}</a>`
+      : `<span class="step ${state} locked" aria-disabled="true">${inner}</span>`}</li>`;
+  }).join("");
 }
 
 /* ------------------------------------------------------------------ boot */
@@ -163,12 +165,12 @@ async function render() {
   if (route.projectId) {
     try { project = currentProject = await api(`/api/projects/${route.projectId}`); store.project = project.id; }
     catch (e) {
-      await renderRail(null);
+      renderChrome(null);
       app.innerHTML = errorView(e.status === 404 ? "Project not found" : "Could not load project", errText(e));
       return;
     }
   }
-  await renderRail(project);
+  renderChrome(project);
   try {
     switch (route.name) {
       case "home": return renderHome(app);
@@ -195,33 +197,48 @@ boot();
 function renderHome(app) {
   app.innerHTML = `
   <div class="hero">
-    <div class="hero-kicker">NIGHTOWLS · ROUND 2 BUILD · SYNTHETIC DEMO DATA</div>
-    <h1>The handover that holds when someone walks out the door.</h1>
-    <p>Tether reads the trail a leaver leaves behind — commits, issues, pull requests, meeting notes and chat — and rebuilds what they knew into short claims, each pinned to the exact line it came from.</p>
-    <p>The machine never decides what is true. A named reviewer reads every conflict and gap, says which value wins and why, signs the version, and the successor opens a handover written for day one.</p>
-    <div class="hero-ctas">
-      <button class="btn btn-amber" id="cta-demo">Load the Aster demo project →</button>
-      <button class="btn btn-secondary" id="cta-own" style="background:transparent;color:#F3EDDF;border-color:rgba(255,255,255,.35)">Use your own authorised sources</button>
+    <div class="hero-kicker">PROJECT TETHER · KNOWLEDGE HANDOVER ENGINE</div>
+    <h1>Prevent critical engineering knowledge from leaving with people.</h1>
+    <p class="lede">Tether captures what a departing engineer knows and decided while the work was happening. When they move on, the next person picks it up — settled decisions, unfinished work, true owners, and active risk — without chasing anyone.</p>
+    <div class="pick-grid">
+      <div class="pick">
+        <div class="pick-head"><span class="badge-index">01</span></div>
+        <h2>Load Demo Project: Aster</h2>
+        <p>The synthetic student portal project (“Aster — campus club events app”) with 61 planted facts, 20 planted fakes, 6 planted contradictions and 6 successor gaps. Runs hermetically with zero API keys — claims are pulled in replay mode, every check is real.</p>
+        <ul class="pick-list">
+          <li>Sources: Git repo (~60 commits), 7 meeting notes, issues &amp; PRs, chat export</li>
+          <li>Departing lead: Alex Rivera (2 weeks’ notice) — most commits authored by one person</li>
+          <li>Reviewer: Sanit Salve (N1, Team Lead) · Successor: Diya Raman · Admin: Krushna Patil</li>
+        </ul>
+        <button class="btn btn-primary" id="cta-demo">Load Demo Project &amp; Start Flow →</button>
+      </div>
+      <div class="pick">
+        <div class="pick-head"><span class="badge-index">02</span></div>
+        <h2>Use Your Own Authorised Sources</h2>
+        <p>Upload a Git bundle export, Markdown notes and a JSON chat export. A mandatory, explicit authorisation consent is logged before anything is parsed — the two connected-person channels are never read.</p>
+        <ul class="pick-list">
+          <li>Mandatory consent gate, logged in the tamper-evident audit trail</li>
+          <li>In-memory exclusion for private / HR channels before storage</li>
+          <li>Automatic secret &amp; PII redaction prior to write</li>
+        </ul>
+        <button class="btn btn-ghost" id="cta-own">Connect Custom Sources →</button>
+      </div>
     </div>
-    <div class="how-grid" aria-label="How it works">
-      <div class="how-cell"><b>1 · Connect</b><span>Tick consent, bring repos, notes and chat. We show you exactly what will and won't be read — including the two channels that never are.</span></div>
-      <div class="how-cell"><b>2 · Rebuild</b><span>One reader per source. Quotes are found character-for-character or the claim is dropped. Chat alone is never strong proof.</span></div>
-      <div class="how-cell"><b>3 · Review</b><span>Conflicts show both sides. Gaps stay visible with an owner and a next step. Nothing is settled by the machine.</span></div>
-      <div class="how-cell"><b>4 · Sign</b><span>Gates must pass — labels cleared, conflicts decided, uncertain items settled, citation test at 100%. Then v1.0 freezes with a hash.</span></div>
+    <div class="walk">
+      <div class="walk-head">
+        <h2>›_ The Four-Minute Verification Walkthrough (DM-1 to DM-4)</h2>
+        <a href="/judge" data-nav="/judge">Open Interactive Guide →</a>
+      </div>
+      <div class="walk-grid">
+        <div class="walk-cell"><b>1 · Connect</b>Review source labels and confirm the excluded private channels are never read.</div>
+        <div class="walk-cell"><b>2 · Prove</b>Click citation chips to inspect character-exact source excerpts for every kept claim.</div>
+        <div class="walk-cell"><b>3 · Correct</b>Settle open contradictions with mandatory reviewer sign-off; every decision is logged.</div>
+        <div class="walk-cell"><b>4 · Restrict</b>Open the successor handover; verify the plain notice &amp; zero leaked restricted rows.</div>
+      </div>
     </div>
-  </div>
-  <div class="home-footer">
-    <span><b>Demo data:</b> Aster is a synthetic campus club events app, written for this demo. Every person, quote and number in it is invented for testing.</span>
-    <span><b>Honesty:</b> no loss rate is ever claimed; gaps are listed, never estimated. Replay mode: the model call is recorded — the checks and plumbing are real.</span>
-  </div>
-  <div class="card" style="margin-top:18px">
-    <h2 class="card-title">What this build proves — and what it refuses to claim</h2>
-    <p class="card-sub">Details: <code>docs/LIMITATIONS.md</code>, <code>reports/verify.md</code></p>
-    <div class="kv">
-      <dt>Proves</dt><dd>Connect → check → review → sign → handover runs end to end with every claim traceable to a source line.</dd>
-      <dt>Proves</dt><dd>Fake quotes are dropped and counted; restricted material never reaches the successor; the log is hash-chained and append-only.</dd>
-      <dt>Refuses to claim</dt><dd>That a model knows your project. The model may only propose; your reviewer decides. Replay mode proves plumbing, not model quality.</dd>
-      <dt>Refuses to claim</dt><dd>A number for "knowledge captured". Tether shows claims and gaps — it never counts what it cannot see.</dd>
+    <div class="home-footer">
+      <span><b>Demo data:</b> Aster is synthetic and written for this build. Every person, quote and number in it is invented; the pipeline is scored against a private answer key.</span>
+      <span><b>Honesty:</b> no loss rate is ever claimed — gaps are listed, never estimated. Replay mode replays recorded model proposals; the checks and plumbing are real.</span>
     </div>
   </div>`;
   $("#cta-demo").addEventListener("click", async (ev) => {
@@ -231,7 +248,7 @@ function renderHome(app) {
       store.project = p.id; currentProject = p;
       toast("Aster demo loaded — start with the labels on Connect", "ok");
       nav(`/p/${p.id}/connect`);
-    } catch (e) { toast(errText(e), "error"); btn.disabled = false; btn.textContent = "Load the Aster demo project →"; }
+    } catch (e) { toast(errText(e), "error"); btn.disabled = false; btn.textContent = "Load Demo Project & Start Flow →"; }
   });
   $("#cta-own").addEventListener("click", async () => {
     try {
@@ -433,15 +450,18 @@ async function renderRebuild(app, project) {
 }
 
 /* ------------------------------------------------------------------ citation modal */
-async function showCitation(spanId) {
+async function showCitation(spanId, quote) {
   const modal = $("#modal");
   modal.hidden = false;
   $("#cite-locator").textContent = "Loading…";
   $("#cite-meta").textContent = "";
   $("#cite-text").textContent = "";
   $("#cite-redactions").hidden = true;
+  const status = $("#cite-status");
+  status.hidden = true; status.className = "cite-status"; status.textContent = "";
   try {
     const s = await api(`/api/spans/${encodeURIComponent(spanId)}`);
+    const text = s.text || "";
     $("#cite-locator").textContent = s.locator;
     $("#cite-meta").innerHTML = `${esc(s.source_name)} · label <span class="badge badge-label ${esc(s.source_label)}">${esc(s.source_label)}</span> · captured ${esc(s.captured_at || "unknown")} · sha256 <code>${esc((s.sha256||"").slice(0,16))}…</code>`;
     const reds = s.redactions || [];
@@ -449,7 +469,20 @@ async function showCitation(spanId) {
       $("#cite-redactions").hidden = false;
       $("#cite-redactions").textContent = `Redacted on read: ${reds.map(r => `${r.count ?? 1}× ${r.kind || "private detail"}`).join(", ")} — the file keeps them masked; nothing sensitive reaches the screen.`;
     }
-    $("#cite-text").textContent = s.text;
+    if (quote) {
+      const i = text.indexOf(quote);
+      if (i >= 0) {
+        $("#cite-text").innerHTML = esc(text.slice(0, i)) + '<mark class="cite-hit">' + esc(quote) + '</mark>' + esc(text.slice(i + quote.length));
+        status.hidden = false; status.classList.add("cite-status-ok");
+        status.textContent = "✓ Exact Quote Match (CK-1) — the highlighted region is the quote, nothing more.";
+      } else {
+        $("#cite-text").textContent = text;
+        status.hidden = false; status.classList.add("cite-status-warn");
+        status.textContent = "! Quote not found in this span — do not trust the claim it supports.";
+      }
+    } else {
+      $("#cite-text").textContent = text;
+    }
   } catch (e) {
     $("#cite-locator").textContent = "Citation restricted";
     $("#cite-meta").textContent = errText(e);
@@ -465,7 +498,7 @@ async function showCitation(spanId) {
 })();
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-cite]");
-  if (b) { e.preventDefault(); showCitation(b.getAttribute("data-cite")); }
+  if (b) { e.preventDefault(); showCitation(b.getAttribute("data-cite"), b.getAttribute("data-quote") || ""); }
 });
 
 /* ------------------------------------------------------------------ shared bits */
@@ -481,7 +514,7 @@ function claimCardHTML(c, mode) {
       <div class="evidence-row">
         <div class="evidence-quote">“${esc(e.quote)}”</div>
         <div class="evidence-meta">
-          <button class="mono locator-btn" data-cite="${esc(e.span_id)}" title="Open the source line">${esc(e.locator)}</button>
+          <button class="mono locator-btn" data-cite="${esc(e.span_id)}" data-quote="${esc(e.quote || "")}" title="Open the source line">${esc(e.locator)}</button>
           <span class="badge badge-label ${esc(e.source_label||"")}">${esc(e.source_label||"")}</span>
           <span class="small">${esc(e.captured_at || "")}</span>
         </div>
@@ -632,7 +665,7 @@ function conflictCardHTML(cf, role) {
       <span class="conflict-quote">“${esc(((c.evidence||[])[0]||{}).quote || "")}”</span>
       <span class="conflict-meta">
         <span class="badge badge-label ${esc(c.label)}">${esc(c.label)}</span>
-        ${(c.evidence||[])[0] ? `<button class="mono locator-btn" data-cite="${esc(c.evidence[0].span_id)}">${esc(c.evidence[0].locator)}</button>` : ""}
+        ${(c.evidence||[])[0] ? `<button class="mono locator-btn" data-cite="${esc(c.evidence[0].span_id)}" data-quote="${esc(c.evidence[0].quote || "")}">${esc(c.evidence[0].locator)}</button>` : ""}
       </span>
     </label>`).join("");
   return `
@@ -884,7 +917,7 @@ async function renderSignoff(app, project) {
 function handoverItemHTML(it) {
   const ev = (it.evidence || []).slice(0, 1).map(e => `
       <div class="handover-cite">“${esc(e.quote)}”
-        <button class="mono locator-btn" data-cite="${esc(e.span_id)}" title="Open the source line">${esc(e.locator)}</button>
+        <button class="mono locator-btn" data-cite="${esc(e.span_id)}" data-quote="${esc(e.quote || "")}" title="Open the source line">${esc(e.locator)}</button>
         <span class="badge badge-label ${esc(e.source_label||"")}">${esc(e.source_label||"")}</span>
       </div>`).join("");
   return `

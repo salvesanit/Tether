@@ -28,4 +28,8 @@ Read this before the demo. A short honest list scores better than a long proud o
 
 **Synthetic people only.** Aarav Mehta, Sanit Salve, Diya Raman, Krushna Patil are invented for Aster (synthetic). Any resemblance is accidental.
 
+**Heuristics are heuristics, by design.** The successor risk order uses explicit weights (risk 5 · dependency 4 · open question 4 · next step 3 · repeated problem 3 · owner 2 · decision 1) plus +3 for single-author concentration ≥ 80% of module commits, +2 for an open issue/PR link, +2 for items beside a conflict/gap. This is an *estimate*, labelled as such in the UI and payload — it is not a validated predictor of knowledge loss.
+
+**Scale and locale.** The synthetic demo project has ~60 commits. Repositories at 100k+ commit scale have not been benchmarked. Quote matching is optimised for UTF-8 English sources; other locales are untested. Audio/video meeting content must be transcribed before ingestion — Tether does not transcribe. Tether is read-only towards sources: no pushing, no opened PRs, ever.
+
 **What Tether refuses to claim.** No percentage of "knowledge captured". No loss rate. No ranking of people. No guessing who leaves next. No model-settled conflicts. No published handover that nobody signed.

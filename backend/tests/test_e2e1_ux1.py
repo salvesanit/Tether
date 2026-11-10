@@ -70,9 +70,9 @@ def test_ux1_structure_carries_landmarks_and_focus():
     html = html_path.read_text()
     css = (ROOT / "frontend/style.css").read_text()
     assert "<title>" in html
-    assert 'role="radiogroup"' in html
+    assert 'id="role-select"' in html and 'aria-label="Switch role"' in html  # native select — keyboard-operable role switcher
     assert "<main" in html and "<nav" in html
-    assert 'aria-label="Tether navigation"' in html
+    assert '<header' in html and 'aria-label="Sections"' in html  # top bar exposes a labelled nav landmark
     assert "prefers-reduced-motion" in css
     assert re.search(r":focus(-visible)?\b", css), "keyboard focus style missing"
 
