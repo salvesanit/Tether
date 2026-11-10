@@ -1,7 +1,7 @@
-<!-- commit 05b0538eb6ee · 2026-11-10 · model mode: replay · measured on the synthetic project -->
+<!-- commit 8c22a41a3d83 · 2026-11-10 · model mode: replay · measured on the synthetic project -->
 # Answer-key report — Aster (synthetic)
 
-commit `05b0538eb6ee` · 2026-11-10 · model mode: `replay` · measured on the synthetic project.
+commit `8c22a41a3d83` · 2026-11-10 · model mode: `replay` · measured on the synthetic project.
 
 **Planted:** 61 facts (16 decisions) · 20 fakes · 6 conflicts · 6 gaps
 

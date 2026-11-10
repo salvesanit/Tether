@@ -1,12 +1,12 @@
 {
   "report": "check_report \u2014 Tether Round 2",
-  "commit": "05b0538eb6eea82b9ed5ecc83825749163133016",
+  "commit": "8c22a41a3d838db79a149e8d67f95f486ac0e2d4",
   "date": "2026-11-10",
   "model_mode": "replay",
   "measured_on": "the synthetic project (Aster)",
-  "project_id": "p_38ae901c25df74e1",
+  "project_id": "p_78ebeffc9f806a24",
   "run": {
-    "id": "run_2e5b4bc0a614b14b",
+    "id": "run_5f08d151ff687337",
     "extractor": "replay",
     "extractor_chunks": {
       "rules": 0,
@@ -47,12 +47,12 @@
         "reason": "private channel \u2014 not ours to read"
       }
     ],
-    "duration_ms": 279,
+    "duration_ms": 375,
     "steps": [
       {
         "step": "read & clean",
         "detail": "165 spans from 19 sources",
-        "ms": 129
+        "ms": 192
       },
       {
         "step": "pull claims",
@@ -62,22 +62,22 @@
       {
         "step": "check (quote, caps)",
         "detail": "61 kept \u00b7 21 dropped",
-        "ms": 32
+        "ms": 41
       },
       {
         "step": "group",
         "detail": "60 claims from 61 quotes",
-        "ms": 63
+        "ms": 82
       },
       {
         "step": "conflicts",
         "detail": "6 open",
-        "ms": 6
+        "ms": 8
       },
       {
         "step": "fill the queue",
         "detail": "6 gaps, risk order set",
-        "ms": 39
+        "ms": 44
       }
     ]
   },
