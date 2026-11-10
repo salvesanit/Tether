@@ -11,6 +11,25 @@ const store = {
   set project(v) { v ? localStorage.setItem("tether.project", v) : localStorage.removeItem("tether.project"); },
 };
 
+/* ------------------------------------------------------------------ theme (two modes; default dark) */
+const theme = {
+  KEY: "tether.theme",
+  get() { const t = localStorage.getItem("tether.theme"); return t === "colour" ? "colour" : "dark"; },
+  set(t) { localStorage.setItem("tether.theme", t); document.documentElement.setAttribute("data-theme", t); renderThemeToggle(); },
+  toggle() { theme.set(theme.get() === "dark" ? "colour" : "dark"); },
+};
+function renderThemeToggle() {
+  const btn = document.getElementById("theme-toggle");
+  if (!btn) return;
+  const dark = theme.get() === "dark";
+  document.documentElement.setAttribute("data-theme", theme.get());
+  btn.setAttribute("aria-pressed", String(dark));
+  const name = document.getElementById("theme-name");
+  if (name) name.textContent = dark ? "Dark" : "Colour";
+  const sub = btn.querySelector("small");
+  if (sub) sub.textContent = dark ? "switch to Colour" : "switch to Dark";
+}
+
 const ROLES = [
   {id:"leaver",    name:"Aarav Mehta",  job:"Leaver — centre-of-knowledge", initials:"AM"},
   {id:"reviewer",  name:"Sanit Salve",  job:"Reviewer — decides & signs",   initials:"SS"},
@@ -127,6 +146,8 @@ async function renderRail(project) {
 
 /* ------------------------------------------------------------------ boot */
 let currentProject = null;
+const themeBtn = document.getElementById("theme-toggle");
+if (themeBtn) themeBtn.addEventListener("click", () => theme.toggle());
 async function boot() {
   const pid = store.project;
   if (!pid) { await render(); return; }
@@ -167,6 +188,7 @@ async function render() {
 function errorView(title, detail) {
   return `<div class="card empty"><span class="empty-mark">◌</span><h2 class="card-title">${esc(title)}</h2><p>${esc(detail)}</p><div class="btn-row" style="justify-content:center"><a class="btn btn-secondary" data-nav="/" href="/">Back to start</a></div></div>`;
 }
+renderThemeToggle();
 boot();
 
 /* ------------------------------------------------------------------ home */
