@@ -135,8 +135,16 @@ def main() -> int:
     header = (f"<!-- commit {sha_short} · {date} · model mode: {mode} · measured on the synthetic project -->\n")
 
     _write_check_report(ROOT / "reports/check_report.json", result, project, counts, key, date, sha, mode)
+    dropped_map = {}
+    for cand in db.list_candidates(result["run"]["id"]):
+        try:
+            payload = json.loads(cand["payload"] or "{}")
+        except Exception:
+            payload = {}
+        if cand.get("quote_found") == 0 or cand.get("drop_reason"):
+            dropped_map[(payload.get("quote"), payload.get("locator"))] = cand.get("drop_reason") or "quote_not_found"
     _write_answer_key_report(ROOT / "reports/answer_key_report.md", key, facts_by_type, facts_found,
-                             found_decisions, decisions, counts, date, sha, mode, header)
+                             found_decisions, decisions, counts, date, sha, mode, header, dropped_map)
     _write_leak_report(ROOT / "reports/leak_test_report.md", leaks, date, sha, mode, header)
 
     fail_count = sum(v[1] for v in per_id.values())
@@ -224,7 +232,7 @@ def _write_check_report(path, result, project, counts, key, date, sha, mode):
 
 
 def _write_answer_key_report(path, key, facts_by_type, facts_found, found_decisions, decisions,
-                             counts, date, sha, mode, header):
+                             counts, date, sha, mode, header, dropped_map):
     lines = [header, "# Answer-key report — Aster (synthetic)\n\n",
              f"commit `{sha[:12]}` · {date} · model mode: `{mode}` · measured on the synthetic project.\n\n",
              f"**Planted:** {len(key['facts'])} facts (16 decisions) · {len(key['fakes'])} fakes · {key['counts']['conflicts']} conflicts · {len(key['gaps']['missing'])} gaps\n\n",
@@ -236,7 +244,14 @@ def _write_answer_key_report(path, key, facts_by_type, facts_found, found_decisi
     lines.append("## Fakes — none survive the check\n\n")
     lines.append("| Fake | Kind | Outcome in this run |\n|---|---|---|\n")
     for f in key["fakes"]:
-        lines.append(f"| {f['id']} | {f['kind']} | dropped (quote not found at locator) |\n")
+        reason = dropped_map.get((f["quote"], f["locator"]))
+        if reason is None:
+            for (q, _loc), r in dropped_map.items():
+                if q == f["quote"]:
+                    reason = r
+                    break
+        outcome = f"dropped — {reason}" if reason else "!!! NOT DROPPED — this would fail CK-1"
+        lines.append(f"| {f['id']} | {f['kind']} | {outcome} |\n")
     lines.append("\n## Wrongly kept\n\nNone — every kept candidate passed the quote check character-for-character.\n\n")
     lines.append("## Missed\n\n" + ("None.\n" if facts_found == len(key["facts"]) else
                                     f"{len(key['facts']) - facts_found} fact(s) not kept; see the claims table.\n"))

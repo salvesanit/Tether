@@ -330,6 +330,17 @@ def insert_evidence(claim_id: str, span_id: str, quote: str, locator: str, sourc
     return eid
 
 
+def claims_citing_span(span_id: str) -> list:
+    """Claims whose evidence cites this span — used to fail closed on citation reads."""
+    with get_conn() as con:
+        rows = con.execute(
+            "SELECT claims.id, claims.label FROM claims "
+            "JOIN evidence ON evidence.claim_id = claims.id WHERE evidence.span_id = ?",
+            (span_id,),
+        ).fetchall()
+        return [_row_to_dict(r) for r in rows]
+
+
 def list_evidence(claim_id: str) -> list:
     with get_conn() as c:
         return [_row_to_dict(r) for r in c.execute("SELECT * FROM evidence WHERE claim_id=?", (claim_id,)).fetchall()]

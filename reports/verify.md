@@ -1,25 +1,25 @@
-<!-- commit HEAD · 2026-11-09 · model mode: replay · measured on the synthetic project -->
+<!-- commit a261b138a879 · 2026-11-09 · model mode: replay · measured on the synthetic project -->
 # Tether — verification report
 
-**Result: PASS** · commit `HEAD` · 2026-11-09 · model mode: `replay` · measured on the synthetic project.
+**Result: PASS** · commit `a261b138a879` · 2026-11-09 · model mode: `replay` · measured on the synthetic project.
 
 In replay mode the model call is recorded, so this report shows that the checks and the plumbing work — not that the model is good. Counts only: never a loss rate, never a percent of knowledge captured.
 
 | Test ID | Result | Detail |
 |---|---|---|
 | AK-1 | PASS | ok |
-| AK-2 | PASS-ish? | ok |
+| AK-2 | PASS | ok |
 | CK-1 | PASS | ok |
 | CK-2 | PASS | ok |
 | CK-3 | PASS | ok |
 | CK-4 | PASS | ok |
-| E2E-1 | PASS (browser-dependent parts SKIPPED) | skipped: [ 39%] |
+| E2E-1 | PASS (browser-dependent parts SKIPPED) | skipped |
 | IN-1 | PASS | ok |
 | KEY-1 | PASS | ok |
 | PERM-1 | PASS | ok |
 | PERM-2 | PASS | ok |
-| PERM-3 | PASS-ish? | ok |
-| PERM-4 | PASS-ish? | ok |
+| PERM-3 | PASS | ok |
+| PERM-4 | PASS | ok |
 | RD-1 | PASS | ok |
 | RD-2 | PASS | ok |
 | REV-1 | PASS | ok |
@@ -27,7 +27,7 @@ In replay mode the model call is recorded, so this report shows that the checks 
 | SEC-2 | PASS | ok |
 | SEC-3 | PASS | ok |
 | SW-1 | PASS | ok |
-| UX-1 | PASS-ish? | ok |
+| UX-1 | PASS | ok |
 
 ## Rebuild counts (this run)
 

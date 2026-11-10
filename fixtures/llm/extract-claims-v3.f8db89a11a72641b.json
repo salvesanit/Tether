@@ -1,11 +1,23 @@
 {
  "provenance": "handwritten-reference",
- "generated": "2026-11-09T17:30:23Z",
+ "generated": "2026-11-10T05:59:36Z",
  "model_id": null,
  "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
- "chunk_locator": "file:notes/2026-10-02.md#P2",
- "ceiling_kind": "file",
+ "chunk_locator": "chat:#general@1760702400.006",
+ "ceiling_kind": "chat",
  "claims": [
+  {
+   "type": "next step",
+   "text": "Payments cutover happens on 2026-11-20.",
+   "quote": "Payments cutover happens on 2026-11-20.",
+   "subject": "payments",
+   "attribute": "cutover date",
+   "value": "2026-11-20",
+   "rejected_options": [],
+   "gap_subject": "open work and branches",
+   "has_issue_ref": false,
+   "confidence": 0.9
+  },
   {
    "type": "next step",
    "text": "Payments cutover happens on 2026-12-01.",

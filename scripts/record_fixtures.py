@@ -73,17 +73,28 @@ def build_reference(args):
             "has_issue_ref": bool(re.search(r"#\d+", f["text"])),
             "confidence": 0.9,
         })
+    def attach_wrong_locator(fake):
+        # A wrong-locator fake is a REAL quote cited at the wrong address. In replay the pipeline
+        # re-derives the locator from the span it reads — so to be dropped the candidate must be
+        # proposed at a span that does NOT hold the quote. Never place it on the quote's span.
+        stated = span_by_locator.get(fake["locator"])
+        if stated is not None and fake["quote"] not in stated["text"]:
+            return stated
+        fname = fake["locator"].split("#", 1)[0]
+        for c in captured:
+            if c["locator"].split("#", 1)[0] == fname and fake["quote"] not in c["text"]:
+                return c
+        for c in captured:
+            if fake["quote"] not in c["text"]:
+                return c
+        return None
+
     for k_f in fakes:
-        target = span_by_locator.get(k_f["locator"])
-        if target is None:
-            # fall back to the span that actually holds the fake's real quote (wrong_locator case),
-            # then to the span from the same file (the model cited the file, invented the sentence)
-            for i, c in enumerate(captured):
-                if k_f["kind"] == "wrong_locator" and k_f["quote"] in c["text"]:
-                    target = c
-                    break
-        if target is None:
-            target = same_file_span(k_f["locator"])
+        if k_f["kind"] == "wrong_locator":
+            target = attach_wrong_locator(k_f)
+        else:
+            # invented / altered: quote exists nowhere; attach to the stated locator's span (or same file)
+            target = span_by_locator.get(k_f["locator"]) or same_file_span(k_f["locator"])
         if target is None:
             unplaced_fakes.append(k_f["id"])
             continue
@@ -102,10 +113,24 @@ def build_reference(args):
         meta = json.loads(old.read_text())
         if meta.get("provenance") == "handwritten-reference":
             old.unlink()  # regenerate only our own tier; model fixtures are never touched
-    written = 0
+    # Byte-identical chunks (same source text in two places) are one fixture: union the twin positions'
+    # claims, never last-write-wins. Dedupe identical claims.
+    groups = {}
     for i, c in enumerate(captured):
-        claims = per_span[i]
-        chunk_hash = hashlib.sha256(c["text"].encode("utf-8")).hexdigest()[:16]
+        h = hashlib.sha256(c["text"].encode("utf-8")).hexdigest()[:16]
+        g = groups.setdefault(h, {"chunk": c, "claims": [], "seen": set(), "positions": 0})
+        g["positions"] += 1
+        for claim in per_span[i]:
+            sig = json.dumps(claim, sort_keys=True)
+            if sig not in g["seen"]:
+                g["seen"].add(sig)
+                g["claims"].append(claim)
+    written = 0
+    merged = 0
+    for h, g in groups.items():
+        c = g["chunk"]
+        if g["positions"] > 1:
+            merged += g["positions"] - 1
         fixture = {
             "provenance": "handwritten-reference",
             "generated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -113,11 +138,11 @@ def build_reference(args):
             "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
             "chunk_locator": c["locator"],
             "ceiling_kind": c["ceiling_kind"],
-            "claims": claims,
+            "claims": g["claims"],
         }
-        (out_dir / f"extract-claims-v3.{chunk_hash}.json").write_text(json.dumps(fixture, indent=1))
+        (out_dir / f"extract-claims-v3.{h}.json").write_text(json.dumps(fixture, indent=1))
         written += 1
-    print(f"spans captured: {len(captured)}")
+    print(f"spans captured: {len(captured)} ({merged} duplicate chunk(s) unioned)")
     print(f"fixtures written: {written} to {out_dir}")
     print(f"planted fact candidates placed: {len(placed_fact_ids)} of {len(facts)}")
     if unplaced_facts:

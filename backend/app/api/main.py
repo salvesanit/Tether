@@ -311,9 +311,14 @@ def clear_labels(project_id: str, x_tether_role: str | None = Header(default=Non
     p = _project_or_404(project_id)
     pending = [s for s in db.list_sources(project_id) if s["read_state"] != "not read" and not s["label"]]
     if pending:
+        db.append_log(_actor(project_id, role), role, "gate.refused", project_id,
+                      {"gate": "labels", "reason": "labels still pending", "pending": [s["name"] for s in pending]})
         raise HTTPException(409, {"pending": [s["name"] for s in pending], "note": "every source that will be read needs a label first"})
-    if p["state"] == "scoped":
-        db.set_project_state(project_id, "labelled")
+    if p["state"] != "scoped":
+        db.append_log(_actor(project_id, role), role, "gate.refused", project_id,
+                      {"gate": "labels", "reason": f"project is {p['state']}"})
+        raise HTTPException(409, f"the labels gate already ran — project is {p['state']}")
+    db.set_project_state(project_id, "labelled")
     for s in db.list_sources(project_id):
         if s["read_state"] == "pending" and s["label"]:
             db.set_source_read(s["id"], "read")
@@ -813,6 +818,11 @@ def get_span(span_id: str, x_tether_role: str | None = Header(default=None)):
     if src is None:
         raise HTTPException(404, "span source not found")
     if not _claim_readable(role, src["label"] or "confidential"):
+        raise HTTPException(403, "this citation is restricted for your role")
+    # fail closed on the claim path too: a span is readable only when at least one claim
+    # citing it is readable by this role (or nothing cites it yet and the source label allows)
+    citing = db.claims_citing_span(span_id)
+    if citing and not any(_claim_readable(role, c["label"] or "restricted") for c in citing):
         raise HTTPException(403, "this citation is restricted for your role")
     return {"id": span["id"], "locator": span["locator"], "text": span["text"],
             "sha256": span["text_sha256"], "source_label": src["label"], "source_name": src["name"],

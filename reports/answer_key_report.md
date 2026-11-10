@@ -1,7 +1,7 @@
-<!-- commit HEAD · 2026-11-09 · model mode: replay · measured on the synthetic project -->
+<!-- commit a261b138a879 · 2026-11-09 · model mode: replay · measured on the synthetic project -->
 # Answer-key report — Aster (synthetic)
 
-commit `HEAD` · 2026-11-09 · model mode: `replay` · measured on the synthetic project.
+commit `a261b138a879` · 2026-11-09 · model mode: `replay` · measured on the synthetic project.
 
 **Planted:** 61 facts (16 decisions) · 20 fakes · 6 conflicts · 6 gaps
 
@@ -24,26 +24,26 @@ commit `HEAD` · 2026-11-09 · model mode: `replay` · measured on the synthetic
 
 | Fake | Kind | Outcome in this run |
 |---|---|---|
-| FAKE-INV-01 | invented | dropped (quote not found at locator) |
-| FAKE-INV-02 | invented | dropped (quote not found at locator) |
-| FAKE-INV-03 | invented | dropped (quote not found at locator) |
-| FAKE-INV-04 | invented | dropped (quote not found at locator) |
-| FAKE-INV-05 | invented | dropped (quote not found at locator) |
-| FAKE-INV-06 | invented | dropped (quote not found at locator) |
-| FAKE-INV-07 | invented | dropped (quote not found at locator) |
-| FAKE-ALT-01 | altered | dropped (quote not found at locator) |
-| FAKE-ALT-02 | altered | dropped (quote not found at locator) |
-| FAKE-ALT-03 | altered | dropped (quote not found at locator) |
-| FAKE-ALT-04 | altered | dropped (quote not found at locator) |
-| FAKE-ALT-05 | altered | dropped (quote not found at locator) |
-| FAKE-ALT-06 | altered | dropped (quote not found at locator) |
-| FAKE-ALT-07 | altered | dropped (quote not found at locator) |
-| FAKE-LOC-01 | wrong_locator | dropped (quote not found at locator) |
-| FAKE-LOC-02 | wrong_locator | dropped (quote not found at locator) |
-| FAKE-LOC-03 | wrong_locator | dropped (quote not found at locator) |
-| FAKE-LOC-04 | wrong_locator | dropped (quote not found at locator) |
-| FAKE-LOC-05 | wrong_locator | dropped (quote not found at locator) |
-| FAKE-LOC-06 | wrong_locator | dropped (quote not found at locator) |
+| FAKE-INV-01 | invented | dropped — quote_not_found |
+| FAKE-INV-02 | invented | dropped — quote_not_found |
+| FAKE-INV-03 | invented | dropped — quote_not_found |
+| FAKE-INV-04 | invented | dropped — quote_not_found |
+| FAKE-INV-05 | invented | dropped — quote_not_found |
+| FAKE-INV-06 | invented | dropped — quote_not_found |
+| FAKE-INV-07 | invented | dropped — quote_not_found |
+| FAKE-ALT-01 | altered | dropped — quote_not_found |
+| FAKE-ALT-02 | altered | dropped — quote_not_found |
+| FAKE-ALT-03 | altered | dropped — quote_not_found |
+| FAKE-ALT-04 | altered | dropped — quote_not_found |
+| FAKE-ALT-05 | altered | dropped — quote_not_found |
+| FAKE-ALT-06 | altered | dropped — quote_not_found |
+| FAKE-ALT-07 | altered | dropped — quote_not_found |
+| FAKE-LOC-01 | wrong_locator | dropped — quote_not_found |
+| FAKE-LOC-02 | wrong_locator | dropped — quote_not_found |
+| FAKE-LOC-03 | wrong_locator | dropped — quote_not_found |
+| FAKE-LOC-04 | wrong_locator | dropped — quote_not_found |
+| FAKE-LOC-05 | wrong_locator | dropped — quote_not_found |
+| FAKE-LOC-06 | wrong_locator | !!! NOT DROPPED — this would fail CK-1 |
 
 ## Wrongly kept
 

@@ -1,6 +1,6 @@
 {
  "provenance": "handwritten-reference",
- "generated": "2026-11-09T17:30:23Z",
+ "generated": "2026-11-10T05:59:36Z",
  "model_id": null,
  "derived_from": "data/demo_project/answer_key.json (handwritten planted reference) matched to seeded spans",
  "chunk_locator": "file:src/db.js#L1-23",
@@ -22,6 +22,18 @@
    "type": "decision",
    "text": "All data is encrypted at rest with AES-256.",
    "quote": "All data is encrypted at rest with AES-256.",
+   "subject": null,
+   "attribute": null,
+   "value": null,
+   "rejected_options": [],
+   "gap_subject": null,
+   "has_issue_ref": false,
+   "confidence": 0.9
+  },
+  {
+   "type": "decision",
+   "text": "Rate limit is 100 requests per minute.",
+   "quote": "Rate limit is 100 requests per minute.",
    "subject": null,
    "attribute": null,
    "value": null,

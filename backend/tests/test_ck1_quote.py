@@ -27,11 +27,17 @@ def test_ck1_all_twenty_fakes_dropped(built, spans_by_locator, answer_key):
     assert survivors == [], f"fakes that would survive CK-1: {survivors}"
 
 
-def test_ck1_replay_run_kept_and_dropped_counts(built):
+def test_ck1_replay_run_kept_and_dropped_counts(built, answer_key):
     c = built["counts"]
-    assert c["candidates"] == c["kept"] + c["dropped"]
-    assert c["dropped"] == 20 and c["dropped_by_reason"].get("quote_not_found") == 20
-    assert c["kept"] >= 59  # 61 planted facts, two identical sentences merge into one claim with two evidences
+    # candidates = kept proposals + dropped; kept (claim rows) trails kept proposals by the dedupe count
+    assert c["candidates"] >= c["kept"] + c["dropped"]
+    # 20 fakes, one of them proposed at two byte-identical chunks and dropped in both — hence 21 drop candidates
+    assert c["dropped"] == 21 and c["dropped_by_reason"].get("quote_not_found") == 21
+    assert c["kept"] >= 59
+    # no planted fact may silently vanish: every fact text must surface as a kept claim
+    claim_texts = {cl["text"] for cl in built["db"].list_claims(built["project_id"])}
+    missing = [f["id"] for f in answer_key["facts"] if f["text"] not in claim_texts]
+    assert missing == [], f"planted facts lost by the pipeline: {missing}"
 
 
 def test_ck1_check_quote_requires_exact_substring():
