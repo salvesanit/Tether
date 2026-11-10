@@ -55,3 +55,6 @@ RISK_CONFLICT_GAP_BONUS = 2    # a conflict or a gap sits beside it
 SEVEN_DAYS_STEP = "notes"
 PROMPT_VERSION = "extract-claims-v3"
 REVIEWER_REASON_REQUIRED = ["reject","park","decide"]
+
+# Upload ceiling (one home for limits, N1 approves in docs/N1_DECISIONS.md).
+MAX_UPLOAD_BYTES = 25 * 1024 * 1024  # 25 MiB per file

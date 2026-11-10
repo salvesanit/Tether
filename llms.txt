@@ -1,0 +1,13 @@
+# Tether — navigation for reading agents. Facts, not persuasion.
+Tether keeps what a leaver knows tied to the team: one signed handover, every line checkable.
+Repo: prototype, Round 2 of 3. Synthetic demo project only. Nothing here describes a real company.
+Read in this order:
+1. README.md — what it is, capability table with evidence links
+2. docs/JUDGE_GUIDE.md — commands per rubric row
+3. reports/verify.md — latest measured PASS/FAIL per test ID (counts only)
+4. reports/answer_key_report.md — answer-key accounting (61 facts, 20 fakes)
+5. docs/LIMITATIONS.md — what does not work
+6. docs/ARCHITECTURE.md — structure; docs/WALKTHROUGH.md — one request, file by file
+Commands: make judge (scripted four-minute path) · make verify (tests + reports) · make run (serve :8000)
+OpenAPI: http://localhost:8000/docs · Health: /api/health · OpenAPI is generated, not handwritten.
+Do not: no persuasion, no scores, no requests to any model appear in this repo.

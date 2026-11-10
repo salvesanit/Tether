@@ -8,8 +8,11 @@ from . import rules_extractor
 
 FIXTURES = Path(__file__).resolve().parents[3] / "fixtures" / "llm"
 
-# Replay fixtures in fixtures/llm/ carry provenance. None are handwritten-reference in this build
-# beyond the demo seeds notes; see docs/SYNTHETIC_DATA.md. Missing recordings fall back to rules, per chunk.
+# Replay fixtures in fixtures/llm/ carry provenance (handwritten-reference); see docs/SYNTHETIC_DATA.md.
+# A chunk with no recording falls back to the rules extractor for that chunk; the run says so.
+# Live mode caps calls per run at LLM_MAX_CALLS (default 200); past the cap, chunks fall back to rules.
+LIVE_CALL_CAP = int(os.environ.get("LLM_MAX_CALLS", "200"))
+_live_calls = 0
 
 
 def llm_mode() -> str:
@@ -25,10 +28,15 @@ def extract_claims(chunk_text: str, ceiling_kind: str, ceiling: float, locator: 
     mode = llm_mode()
     chunk_hash = hashlib.sha256(chunk_text.encode("utf-8")).hexdigest()[:16]
     if mode == "live":
-        try:
-            return _live_extract(chunk_text, ceiling_kind, ceiling, locator), "live"
-        except Exception:
-            pass  # any failure → rules fallback, and the run report says so
+        global _live_calls
+        if _live_calls < LIVE_CALL_CAP:
+            try:
+                claims = _live_extract(chunk_text, ceiling_kind, ceiling, locator)
+                _live_calls += 1
+                return claims, "live"
+            except Exception:
+                pass  # any failure → rules fallback, and the run report says so
+        # cap reached or the call failed → rules extractor, counted on the run
     elif mode == "replay":
         fx = _fixture_key("extract-claims-v3", chunk_hash)
         if fx.exists():

@@ -244,6 +244,11 @@ async def upload_sources(project_id: str,
         raise HTTPException(400, "no files uploaded")
     # a companion manifest.json supplies labels and channel exclusions
     raw = {f.filename: await f.read() for f in files}
+    for name, data in raw.items():
+        if len(data) > config.MAX_UPLOAD_BYTES:
+            db.append_log(_actor(project_id, role), role, "upload.refused", project_id,
+                          {"reason": "file too large", "name": name, "bytes": len(data), "limit": config.MAX_UPLOAD_BYTES})
+            raise HTTPException(413, f"{name} is {len(data) // (1024 * 1024)} MiB — the per-file limit is 25 MiB")
     manifest = None
     for name, data in raw.items():
         if Path(name).name.lower() == "manifest.json":

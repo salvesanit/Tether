@@ -1,5 +1,5 @@
 # Tether — the handover that holds. Canonical commands.
-.PHONY: setup run seed verify test judge stop
+.PHONY: setup run seed verify test judge stop demo-tokens
 
 setup:
 	pip install -r requirements.txt
@@ -21,3 +21,10 @@ judge:				## scripted four-minute path against a fresh throwaway DB
 
 stop:
 	-pkill -f "run.py" || true
+
+demo-tokens:				## print the four role headers for API calls (only meaningful with DEMO_MODE=true)
+	@echo "Tether demo (synthetic) — no secrets. Send one header per request:"; \
+	for r in leaver reviewer successor admin; do \
+	  echo "  $$r:    curl -H 'X-Tether-Role: $$r' http://localhost:8000/api/health"; \
+	done; \
+	echo "The browser role switcher exists only when DEMO_MODE=true."

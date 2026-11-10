@@ -15,11 +15,11 @@ sys.path.insert(0, str(ROOT))
 REPORTS = ROOT / "reports"
 REPORTS.mkdir(exist_ok=True)
 
-TEST_ID = re.compile(r"test_(key1|rd1|rd2|ck1|ck2|ck3|ck4|ak1|ak2|sw1|in1|perm1|perm2|perm3|perm4|sec1|sec2|sec3|rev1|e2e1|ux1)_")
+TEST_ID = re.compile(r"test_(key1|rd1|rd2|ck1|ck2|ck3|ck4|ak1|ak2|sw1|in1|perm1|perm2|perm3|perm4|sec1|sec2|sec3|sec4|rev1|e2e1|ux1)_")
 ID_LABEL = {"key1": "KEY-1", "rd1": "RD-1", "rd2": "RD-2", "ck1": "CK-1", "ck2": "CK-2", "ck3": "CK-3",
             "ck4": "CK-4", "ak1": "AK-1", "ak2": "AK-2", "sw1": "SW-1", "in1": "IN-1",
             "perm1": "PERM-1", "perm2": "PERM-2", "perm3": "PERM-3", "perm4": "PERM-4",
-            "sec1": "SEC-1", "sec2": "SEC-2", "sec3": "SEC-3", "rev1": "REV-1",
+            "sec1": "SEC-1", "sec2": "SEC-2", "sec3": "SEC-3", "sec4": "SEC-4", "rev1": "REV-1",
             "e2e1": "E2E-1", "ux1": "UX-1"}
 
 
@@ -102,7 +102,7 @@ def main() -> int:
     per_id = {v: [0, 0, []] for v in ID_LABEL.values()}  # passed, failed, notes
     for line in proc.stdout.splitlines():
         func = line.split("::", 1)[-1] if "::" in line else line
-        m = re.search(r"test_(key1|rd1|rd2|ck1|ck2|ck3|ck4|ak1|ak2|sw1|in1|perm1|perm2|perm3|perm4|sec1|sec2|sec3|rev1|e2e1|ux1)_", func)
+        m = re.search(r"test_(key1|rd1|rd2|ck1|ck2|ck3|ck4|ak1|ak2|sw1|in1|perm1|perm2|perm3|perm4|sec1|sec2|sec3|sec4|rev1|e2e1|ux1)_", func)
         if not m:
             continue
         label = ID_LABEL[m.group(1)]

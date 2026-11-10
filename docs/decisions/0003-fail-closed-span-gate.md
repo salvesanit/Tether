@@ -1,0 +1,5 @@
+# 0003 — a span is readable only if at least one claim citing it is readable by the role
+Context: The span endpoint originally gated on the *source* label. A restricted claim whose evidence spanned an open source (notes restricted, chat internal) leaked its quote at the internal span to a successor holding the span ID — caught by PERM-1 after the fixture union fix made that claim exist.
+Decision: in addition to the source-label check, `GET /api/spans/{id}` denies the reader when every claim citing the span is unreadable for the role. No citations ⇒ source-label rule decides alone. Reviewer/admin pass always.
+Alternatives rejected: 403-if-any-citing-claim-unreadable (over-broad: one open citing claim already exposes the same text through the readable claim's evidence); per-span ACL table (schema weight for no extra strength).
+Consequence: leak probe (verify.py) checks spans of claims unreadable per role — all forbidden spans return 403; existence of citations is a one-bit oracle, accepted and documented in LIMITATIONS.

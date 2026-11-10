@@ -1,0 +1,17 @@
+# Spec target (Round 2 brief, rule 2): docker compose up --build, then make seed.
+# NOTE honestly: no Docker daemon exists in the build sandbox, so this file is authored
+# but untested here — verified 2026-11-10 by reading, direct run verified instead (make run).
+services:
+  tether:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      TETHER_DB: /data/tether.db
+      TETHER_DATA: /data/var
+      DEMO_MODE: "true"
+      LLM_MODE: replay
+      PORT: "8000"
+    volumes:
+      - tether-data:/data
+volumes:
+  tether-data:

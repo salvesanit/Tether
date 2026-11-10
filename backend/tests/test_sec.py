@@ -1,6 +1,7 @@
 # SEC-1 — Honeytokens: neither token appears in the database, logs, exports, API responses or screens.
 # SEC-2 — Secrets and personal data appear only as [REDACTED:type] or masked.
 # SEC-3 — Injection: the planted note becomes a reviewer item and changes no status, label, role or gate.
+# SEC-4 — Oversized upload: refused with 413 and a log row; nothing is stored.
 import json
 import sqlite3
 
@@ -67,3 +68,15 @@ def test_sec3_injection_becomes_reviewer_item_and_changes_nothing(built, client)
     assert r.status_code == 200
     log = client.get(f"/api/projects/{pid}/log", headers={"X-Tether-Role": "admin"}).json()["rows"]
     assert any("quarantine.confirmed" == row["action"] for row in log)
+
+
+def test_sec4_oversized_upload_is_refused(built, client):
+    """SEC-4 — a file over the ceiling is refused with 413 and a log row; nothing is stored."""
+    from backend.app import config
+    files = [("files", ("huge.bin", b"x" * (config.MAX_UPLOAD_BYTES + 1), "application/octet-stream"))]
+    r = client.post(f"/api/projects/{built['project_id']}/sources",
+                    data={"consent": "true"}, files=files, headers={"X-Tether-Role": "reviewer"})
+    assert r.status_code == 413
+    rows = [row for row in built["db"].list_log(50) if row["action"] == "upload.refused"]
+    assert rows, "no upload.refused log row written"
+    assert json.loads(rows[0]["detail"])["reason"] == "file too large"
