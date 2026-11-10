@@ -17,7 +17,7 @@ curl -H "X-Tether-Role: reviewer" http://localhost:8000/api/health
 | # | Criterion | Open / run |
 |---|---|---|
 | Core workflow (30) | End to end, connect → handover | `make judge` → [docs/demo/golden_path_run.md](demo/golden_path_run.md). Or the UI: README "60-second quickstart". Expected counts: spans 165 · candidates 82 · kept 60 · dropped 21 |
-| Technical depth & reliability (25) | Real parsing, validation, access control, error handling | `make verify` → [reports/verify.md](../reports/verify.md) (per-ID PASS/FAIL), [reports/leak_test_report.md](../reports/leak_test_report.md), [docs/RELIABILITY.md](RELIABILITY.md), `backend/tests/` (47 tests, 1 honest skip) |
+| Technical depth & reliability (25) | Real parsing, validation, access control, error handling | `make verify` → [reports/verify.md](../reports/verify.md) (per-ID PASS/FAIL), [reports/leak_test_report.md](../reports/leak_test_report.md), [docs/RELIABILITY.md](RELIABILITY.md), `backend/tests/` (48 tests, 1 honest skip) |
 | Progress vs the plan (20) | Each Round 1 commitment marked Done/Partial/Changed/Deferred | [docs/PLAN_VS_BUILD.md](PLAN_VS_BUILD.md) with evidence paths · [docs/CHANGES_FROM_ROUND1.md](CHANGES_FROM_ROUND1.md) |
 | Three improvements proposed (15) | Round 3 commitments | [docs/ROUND3_COMMITMENTS.md](ROUND3_COMMITMENTS.md) |
 | Usability (10) | Next step is obvious to a cold reader | The live preview at :8000, or run locally; `UX-1` checks in `backend/tests/test_e2e1_ux1.py`; [docs/demo/golden_path.md](demo/golden_path.md) |
