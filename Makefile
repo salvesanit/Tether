@@ -1,8 +1,9 @@
 # Tether — the handover that holds. Canonical commands.
-.PHONY: setup run seed verify test judge stop demo-tokens
+.PHONY: setup run seed verify test judge stop demo-tokens record-live verify-live
 
 setup:
 	pip install -r requirements.txt
+	npm ci
 
 run:					## start the app on :8000 (TETHER_DB=tether.db, DEMO_MODE=true)
 	python3 run.py
@@ -18,6 +19,12 @@ test:
 
 judge:				## scripted four-minute path against a fresh throwaway DB
 	./scripts/judge_walkthrough.sh
+
+record-live:				## call the configured live model and record model-provenance fixtures (requires credentials)
+	./scripts/record_fixtures.sh --live
+
+verify-live:				## compare recorded model output with the separate handwritten-reference baseline
+	python3 scripts/verify_live.py
 
 stop:
 	-pkill -f "run.py" || true

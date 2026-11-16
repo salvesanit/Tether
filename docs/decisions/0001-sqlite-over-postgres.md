@@ -1,5 +1,5 @@
-# 0001 — SQLite (+ one read path) instead of PostgreSQL + pgvector + RLS
+# 0001 — SQLite by default; PostgreSQL added for CI and Compose
 Context: Round 1 declared Postgres 16, pgvector, gitleaks binary, Next.js. Build constraint from the team: one Python process, FastAPI + SQLite, no build step, verifiable in a Docker-less sandbox.
-Decision: SQLite, WAL mode; `db/read_path.py` is the only module issuing SQL; PERM-4 test walks the tree and fails the build if SQL appears elsewhere; row-filtering in application code against the label matrix; span citations fail closed.
-Alternatives rejected: Postgres+RLS now (no daemon, unverifiable here — a security control you cannot run is decoration); dual drivers (two code paths, no proof either works).
-Consequence: database-enforced row security is NOT proven in this build; concurrency is single-writer; a data-volume or multi-user need forces the Postgres migration ([LATER](../LATER.md), [ROUND3_COMMITMENTS](../ROUND3_COMMITMENTS.md)). Recorded in CHANGES_FROM_ROUND1.
+Initial decision: SQLite, WAL mode, `db/read_path.py` as the only SQL boundary, application-level label filtering, and fail-closed span citations. Dual drivers were deferred until they could be exercised.
+Round 3 change: retain SQLite as the zero-setup development/test backend and add a PostgreSQL driver and migrations for Compose/CI. PostgreSQL forces RLS on the protected rows and the audience-filtered signed-version views; CI creates a non-bypass application role and tests those policies. The SQL boundary remains `read_path.py`.
+Consequence: SQLite remains single-writer and does not provide DB-enforced RLS. PostgreSQL functionality is not considered operationally verified until the PostgreSQL CI job passes. pgvector remains deferred; this project uses exact/structured identifiers rather than embeddings. See [ROUND3_DELIVERY](../ROUND3_DELIVERY.md) and [ROUND3_COMMITMENTS](../ROUND3_COMMITMENTS.md).

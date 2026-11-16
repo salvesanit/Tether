@@ -1,4 +1,5 @@
 # build/runtime state — never committed
+.env
 __pycache__/
 *.pyc
 tether.db

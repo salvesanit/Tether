@@ -2,7 +2,7 @@
 
 > Structure adapted from the external reference build's architecture document (`docs/reference-other-agent/ARCHITECTURE.md`) with its stack corrected to this repository. Everything below describes **this** codebase; names and paths are real files. The reference doc claims a React/Vite/Express/Next.js app with a gitleaks binary — none of that is this build.
 
-Single Python process (FastAPI + uvicorn) serving a static SPA and one JSON API; SQLite via a single read path; no build step; one constants module (`backend/app/config.py`); one label policy (`backend/app/policy/labels.py`).
+Single Python process (FastAPI + uvicorn) serving a static SPA and one JSON API; SQLite locally and PostgreSQL in Compose/CI via a single read path; no UI build step; one constants module (`backend/app/config.py`); one label policy (`backend/app/policy/labels.py`).
 
 ## 1. High-level system architecture
 
@@ -33,9 +33,10 @@ graph TD
     end
 
     subgraph Storage [Ledger & access control]
-        DB[(SQLite<br/>tether.db · WAL)]
-        RP[Single read path<br/>db/read_path.py · PERM-4]
+        DB[(SQLite local · PostgreSQL CI/Compose<br/>forced RLS on PostgreSQL)]
+        RP[Single read path<br/>db/read_path.py · PERM-4/5]
         AL[Append-only audit log<br/>hash-chained sha256]
+        VV[Audience-filtered immutable<br/>PostgreSQL version views]
     end
 
     subgraph Views [Role-filtered interfaces]
@@ -55,10 +56,11 @@ graph TD
     RP -->|reviewer / admin| V_REV & V_ADM
     RP -->|successor · latest signed only| V_SUC
     RP -->|leaver · own work| V_LEAVE
+    DB --> VV
     DB --> AL
 ```
 
-*Plain text: the browser talks only to the FastAPI process. The process holds no other service; the LLM is a file (replay), a pattern set (rules), or a network call (live, optional). All SQL lives in `read_path.py`.*
+*Plain text: the browser talks only to the FastAPI process. SQLite remains the local default; PostgreSQL is wired for Compose and CI with a non-bypass application account. PostgreSQL connections receive a transaction-local role, and signed payloads use audience-filtered version rows. The LLM is a file (replay), a pattern set (rules), or a network call (live, optional). All SQL lives in `read_path.py`.*
 
 ## 2. Project state machine & gate transitions
 
@@ -93,7 +95,7 @@ graph LR
         C[Claim: rate limit is 60/min\nconfidence min(0.95, weakest evidence ceiling)]
         L[Derived label: INTERNAL\nweakest-source wins · HR-2]
     end
-    subgraph RLS [Row-level filtering via read_path]
+    subgraph RLS [Row-level filtering via read_path and PostgreSQL policies]
         R1[Reviewer/Admin: visible]
         R2[Successor: filtered by label]
         N[If any row hidden ⇒ ONE plain notice,\nno title, no count · PERM-1]
@@ -130,9 +132,9 @@ flowchart TD
 
 | The reference document says | This repository actually does |
 |---|---|
-| React 19 / Vite / Tailwind / Express (`DISCLOSURES.md` there) | static vanilla SPA + FastAPI; no Node, no build step ([decisions/0005](decisions/0005-static-spa-no-build.md)) |
+| React 19 / Vite / Tailwind / Express (`DISCLOSURES.md` there) | static vanilla SPA + FastAPI; no UI bundling step ([decisions/0005](decisions/0005-static-spa-no-build.md)) |
 | Gitleaks scanner binary | built-in regex scanner `pipeline/clean.py` (binary unavailable offline; SEC-2 proves the redactions) |
-| `tests/tether.test.ts`, 21 tests via tsx | `python3 -m pytest backend/tests` — 48 passed, 1 skipped (E2E-1, browser-dependent) |
+| `tests/tether.test.ts`, 21 tests via tsx | `python3 -m pytest backend/tests`; browser and PostgreSQL integration checks run in required CI jobs |
 | “100% citation pass rate” as shipped | gates enforce no unsettled uncertain items and all conflicts decided; the CK-1 drop count is reported, never hidden (see `reports/verify.md`) |
 | Gate 3 = CA/citation gate | Gates: Gate 1 labels · Gate 2 queue settled · Gate 3 sign (see `backend/app/api/main.py` `sign_version`) |
 

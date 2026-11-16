@@ -2,19 +2,69 @@
 import json
 import os
 import sqlite3
+from contextlib import contextmanager
+from contextvars import ContextVar
 from pathlib import Path
 
 from ..util import new_id, now_iso, sha256_text
 from .. import config
+from ..policy.labels import role_labels
 
 SCHEMA_PATH = Path(__file__).resolve().parents[3] / "db" / "migrations" / "001_init.sql"
+POSTGRES_MIGRATIONS_DIR = Path(__file__).resolve().parents[3] / "db" / "migrations"
+_REQUEST_ROLE = ContextVar("tether_database_role", default="anonymous")
 
 
 def db_path() -> str:
     return os.environ.get("TETHER_DB", str(Path(__file__).resolve().parents[3] / "tether.db"))
 
 
-def get_conn() -> sqlite3.Connection:
+def postgres_url() -> str | None:
+    return os.environ.get("TETHER_DATABASE_URL") or None
+
+
+def is_postgres() -> bool:
+    return bool(postgres_url())
+
+
+@contextmanager
+def role_context(role: str):
+    token = _REQUEST_ROLE.set(role)
+    try:
+        yield
+    finally:
+        _REQUEST_ROLE.reset(token)
+
+
+class _PostgresConnection:
+    def __init__(self, connection):
+        self._connection = connection
+
+    def execute(self, query, params=()):
+        return self._connection.execute(query.replace("?", "%s"), params)
+
+    def __enter__(self):
+        self._connection.__enter__()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        return self._connection.__exit__(exc_type, exc_value, traceback)
+
+    def __getattr__(self, name):
+        return getattr(self._connection, name)
+
+
+def get_conn():
+    url = postgres_url()
+    if url:
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+        except ImportError as exc:
+            raise RuntimeError("TETHER_DATABASE_URL requires psycopg; install requirements.txt") from exc
+        conn = _PostgresConnection(psycopg.connect(url, row_factory=dict_row))
+        conn.execute("SELECT set_config('app.role', ?, true)", (_REQUEST_ROLE.get(),))
+        return conn
     conn = sqlite3.connect(db_path())
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys=ON")
@@ -22,12 +72,31 @@ def get_conn() -> sqlite3.Connection:
 
 
 def init_db() -> None:
-    conn = get_conn()
-    try:
-        conn.executescript(SCHEMA_PATH.read_text())
-        conn.commit()
-    finally:
-        conn.close()
+    if not is_postgres():
+        conn = get_conn()
+        try:
+            conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
+            conn.commit()
+        finally:
+            conn.close()
+        return
+    with role_context("system"):
+        conn = get_conn()
+        try:
+            conn.execute("CREATE TABLE IF NOT EXISTS tether_schema_migrations (name TEXT PRIMARY KEY)")
+            for migration in sorted(POSTGRES_MIGRATIONS_DIR.glob("[0-9][0-9][0-9]_postgres_*.sql")):
+                applied = conn.execute(
+                    "SELECT 1 FROM tether_schema_migrations WHERE name=?", (migration.name,)
+                ).fetchone()
+                if applied:
+                    continue
+                for statement in migration.read_text(encoding="utf-8").split(";"):
+                    if statement.strip():
+                        conn.execute(statement)
+                conn.execute("INSERT INTO tether_schema_migrations(name) VALUES (?)", (migration.name,))
+            conn.commit()
+        finally:
+            conn.close()
 
 
 def _row_to_dict(row):
@@ -366,7 +435,10 @@ def insert_conflict(project_id: str, subject: str, attribute: str, claim_ids: li
             (xid, project_id, subject, attribute, "open"),
         )
         for cid in claim_ids:
-            c.execute("INSERT OR IGNORE INTO conflict_claims(conflict_id,claim_id) VALUES (?,?)", (xid, cid))
+            if is_postgres():
+                c.execute("INSERT INTO conflict_claims(conflict_id,claim_id) VALUES (?,?) ON CONFLICT DO NOTHING", (xid, cid))
+            else:
+                c.execute("INSERT OR IGNORE INTO conflict_claims(conflict_id,claim_id) VALUES (?,?)", (xid, cid))
     return get_conflict(xid)
 
 
@@ -497,29 +569,84 @@ def create_version(project_id: str, number: str, payload: dict, sha256: str, sig
     with get_conn() as c:
         c.execute(
             "INSERT INTO versions(id,project_id,number,state,payload,sha256,signed_by,signed_at) VALUES (?,?,?,?,?,?,?,?)",
-            (vid, project_id, number, "signed", json.dumps(payload), sha256, signed_by, now_iso()),
+            (vid, project_id, number, "signed", "{}" if is_postgres() else json.dumps(payload), sha256, signed_by, now_iso()),
         )
+        if is_postgres():
+            for audience in ("reviewer", "admin", "leaver", "successor"):
+                view = dict(payload)
+                allowed = set(role_labels(audience))
+                view["items"] = [item for item in payload.get("items", []) if item.get("label") in allowed]
+                view["_hidden_items"] = len(payload.get("items", [])) - len(view["items"])
+                c.execute(
+                    "INSERT INTO version_views(id,version_id,audience,payload) VALUES (?,?,?,?)",
+                    (new_id("vview"), vid, audience, json.dumps(view)),
+                )
     return get_version(vid)
 
 
 def get_version(version_id: str):
+    if is_postgres():
+        audience = _REQUEST_ROLE.get()
+        if audience == "system":
+            audience = "reviewer"
+        with get_conn() as c:
+            row = c.execute(
+                "SELECT versions.id, versions.project_id, versions.number, versions.state, "
+                "version_views.payload, versions.sha256, versions.signed_by, versions.signed_at "
+                "FROM versions JOIN version_views ON version_views.version_id=versions.id "
+                "WHERE versions.id=? AND version_views.audience=?",
+                (version_id, audience),
+            ).fetchone()
+            return _row_to_dict(row)
     with get_conn() as c:
         return _row_to_dict(c.execute("SELECT * FROM versions WHERE id=?", (version_id,)).fetchone())
 
 
 def latest_signed_version(project_id: str):
+    if is_postgres():
+        audience = _REQUEST_ROLE.get()
+        if audience == "system":
+            audience = "reviewer"
+        with get_conn() as c:
+            row = c.execute(
+                "SELECT versions.id, versions.project_id, versions.number, versions.state, "
+                "version_views.payload, versions.sha256, versions.signed_by, versions.signed_at "
+                "FROM versions JOIN version_views ON version_views.version_id=versions.id "
+                "WHERE versions.project_id=? AND version_views.audience=? "
+                "ORDER BY versions.signed_at DESC LIMIT 1",
+                (project_id, audience),
+            ).fetchone()
+            return _row_to_dict(row)
     with get_conn() as c:
         return _row_to_dict(c.execute("SELECT * FROM versions WHERE project_id=? ORDER BY signed_at DESC LIMIT 1", (project_id,)).fetchone())
 
 
 def list_versions(project_id: str) -> list:
+    if is_postgres():
+        audience = _REQUEST_ROLE.get()
+        if audience == "system":
+            audience = "reviewer"
+        with get_conn() as c:
+            rows = c.execute(
+                "SELECT versions.id, versions.project_id, versions.number, versions.state, "
+                "version_views.payload, versions.sha256, versions.signed_by, versions.signed_at "
+                "FROM versions JOIN version_views ON version_views.version_id=versions.id "
+                "WHERE versions.project_id=? AND version_views.audience=? ORDER BY versions.signed_at",
+                (project_id, audience),
+            ).fetchall()
+            return [_row_to_dict(row) for row in rows]
     with get_conn() as c:
         return [_row_to_dict(r) for r in c.execute("SELECT * FROM versions WHERE project_id=? ORDER BY signed_at", (project_id,)).fetchall()]
 
 
 def create_receipt(version_id: str, user_id: str) -> None:
     with get_conn() as c:
-        c.execute("INSERT OR IGNORE INTO receipts(id,version_id,user_id,at) VALUES (?,?,?,?)", (new_id("rcpt"), version_id, user_id, now_iso()))
+        if is_postgres():
+            c.execute("INSERT INTO receipts(id,version_id,user_id,at) VALUES (?,?,?,?) ON CONFLICT DO NOTHING",
+                      (new_id("rcpt"), version_id, user_id, now_iso()))
+        else:
+            c.execute("INSERT OR IGNORE INTO receipts(id,version_id,user_id,at) VALUES (?,?,?,?)",
+                      (new_id("rcpt"), version_id, user_id, now_iso()))
 
 
 def receipt_exists(version_id: str, user_id: str) -> bool:

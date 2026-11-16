@@ -21,6 +21,13 @@ def answer_key():
     return json.loads((ROOT / "data/demo_project/answer_key.json").read_text())
 
 
+@pytest.fixture(autouse=True)
+def database_role():
+    from backend.app.db import read_path as db
+    with db.role_context("reviewer"):
+        yield
+
+
 @pytest.fixture(scope="session")
 def built():
     """The demo project, seeded, label gate cleared, rebuilt — the shared fixture behind most checks."""

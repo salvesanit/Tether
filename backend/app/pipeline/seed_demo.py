@@ -11,6 +11,11 @@ DEMO_DIR = Path(__file__).resolve().parents[3] / "data" / "demo_project"
 
 
 def load_demo_project(name=None, role="reviewer"):
+    with db.role_context(role):
+        return _load_demo_project(name, role)
+
+
+def _load_demo_project(name, role):
     """Create a project and upload the demo sources via the shared service, exactly as POST /sources does."""
     manifest = json.loads((DEMO_DIR / "manifest.json").read_text())
     project = db.create_project(name or manifest["project"]["name"], manifest["project"].get("codename", "Aster"))

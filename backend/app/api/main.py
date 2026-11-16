@@ -6,6 +6,7 @@ import time
 import uuid
 import hashlib
 import zipfile
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, Header, HTTPException, UploadFile, File, Form, Request
@@ -29,7 +30,20 @@ ROLES = ("leaver", "reviewer", "successor", "admin")
 APP_ROOT = Path(__file__).resolve().parents[3]  # repo root (api -> app -> backend -> repo)
 FRONTEND = APP_ROOT / "frontend"
 
-app = FastAPI(title="Tether", version="1.0.0", docs_url="/docs", openapi_url="/openapi.json")
+@asynccontextmanager
+async def lifespan(_app):
+    db.init_db()
+    yield
+
+
+app = FastAPI(title="Tether", version="1.0.0", docs_url="/docs", openapi_url="/openapi.json", lifespan=lifespan)
+
+
+@app.middleware("http")
+async def database_role_context(request: Request, call_next):
+    role = (request.headers.get("X-Tether-Role") or "").lower().strip()
+    with db.role_context(role if role in ROLES else "anonymous"):
+        return await call_next(request)
 
 
 @app.exception_handler(HTTPException)
@@ -699,8 +713,8 @@ def _visible_version(project_id: str, role: str):
 def _filter_payload(payload: dict, role: str):
     allowed = set(role_labels(role))
     items = [i for i in payload["items"] if i["label"] in allowed]
-    hidden = len(payload["items"]) - len(items)
     payload = dict(payload)
+    hidden = int(payload.pop("_hidden_items", 0)) + len(payload["items"]) - len(items)
     payload["items"] = items
     return payload, hidden
 

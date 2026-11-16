@@ -1,8 +1,8 @@
 # Testing — what each group proves, how to run it, latest result
 
-Latest result: **48 passed, 1 skipped** — see [reports/verify.md](../reports/verify.md); the report carries the commit SHA it measured. The skip is E2E-1 (chromium needs libnspr4, unavailable in this sandbox) — a skip with a reason, never a silent pass.
+Latest committed baseline: **48 passed, 1 skipped**. The latest local Round 3 report is [reports/verify.md](../reports/verify.md): **50 passed, 2 skipped**, with the base commit and modified-worktree state recorded. The skips are browser E2E-1 (Chromium could not be downloaded in this Windows environment) and PERM-5 (requires the PostgreSQL CI service). The Playwright E2E is required (not skippable) in CI.
 
-Run everything: `python3 -m pytest backend/tests -q` · or the full rebuild+tests+reports: `python3 scripts/verify.py`.
+Run everything: `npm ci` then `python3 -m pytest backend/tests -q` · or the full rebuild+tests+reports: `python3 scripts/verify.py`. Chromium binaries are installed with `python3 -m playwright install chromium` for local browser runs.
 
 ## Main journeys
 
@@ -33,10 +33,19 @@ Run everything: `python3 -m pytest backend/tests -q` · or the full rebuild+test
 |---|---|
 | `pytest backend/tests/test_perm1_leak_successor.py` | PERM-1 — no restricted/confidential text for the successor on any route, direct ID, export; spans fail closed |
 | `pytest backend/tests/test_perm2_perm3_perm4.py` | PERM-2 unsigned versions 403 · PERM-3 weakest-source label · PERM-4 no SQL outside `db/read_path.py` |
+| `TETHER_DATABASE_URL=... pytest backend/tests/test_perm5_rls_forced.py` | PERM-5 — PostgreSQL `FORCE ROW LEVEL SECURITY`, non-bypass application role, request-local identity, filtered signed-version rows |
 
 ## Reliability
 
 See [docs/RELIABILITY.md](RELIABILITY.md) — failure-mode table with the test ID beside each row, including the two honest gaps (no automated test for a dead database; SQLite not load-tested).
+
+## Required CI jobs
+
+The `verify` job installs Chromium and system libraries, sets `REQUIRE_E2E=1`, and runs `scripts/verify.py`; this runs the clean-start browser path twice and audits Connect, Reconstruct, Review Queue, Sign-Off, and Successor View with axe-core. The `postgres-rls` job creates a `NOSUPERUSER NOBYPASSRLS` app role and runs PERM-1/PERM-5 against PostgreSQL 16. Both are required integration evidence; SQLite-only local runs do not substitute for them.
+
+## Live-model comparison
+
+With an approved provider key and endpoint configured as `LLM_API_KEY`, `LLM_URL`, and `LLM_MODEL`, run `make record-live`, then `make verify-live`. This writes a separate `reports/verify_live.md`; it never overwrites replay reports. A difference of more than two exact-text planted facts returns exit code 2 and requires review. N1 should assess the 25-row sample manually. No report can be created without actual model fixtures.
 
 ## Reports
 

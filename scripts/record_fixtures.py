@@ -165,12 +165,14 @@ def build_live(args):
     from backend.app.pipeline.seed_demo import load_demo_project
     from backend.app.pipeline import run as pipeline_run
     from backend.app.llm import adapter
+    from backend.app import config
 
     db.init_db()
     project = load_demo_project(name=None, role="reviewer")
-    out_dir = ROOT / "fixtures" / "llm"
+    db.set_project_state(project["id"], "labelled")
+    out_dir = ROOT / "fixtures" / "llm" / "model"
     out_dir.mkdir(parents=True, exist_ok=True)
-    recorded = [0]
+    recorded = set()
     orig_live = adapter._live_extract
 
     def spy(chunk_text, ceiling_kind, ceiling, locator):
@@ -180,18 +182,26 @@ def build_live(args):
             "provenance": "model",
             "recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "model_id": os.environ["LLM_MODEL"],
-            "prompt_version": "extract-claims-v3",
+            "prompt_version": config.PROMPT_VERSION,
             "chunk_locator": locator,
             "ceiling_kind": ceiling_kind,
             "claims": claims,
         }
-        (out_dir / f"extract-claims-v3.{chunk_hash}.json").write_text(json.dumps(fixture, indent=1))
-        recorded[0] += 1
+        (out_dir / f"{config.PROMPT_VERSION}.{chunk_hash}.json").write_text(
+            json.dumps(fixture, indent=1), encoding="utf-8")
+        recorded.add(chunk_hash)
         return claims
 
     adapter._live_extract = spy
-    pipeline_run.run_rebuild(project["id"], actor="fixture-recorder", role="reviewer")
-    print(f"recorded {recorded[0]} model chunks into {out_dir}")
+    result = pipeline_run.run_rebuild(project["id"], actor="fixture-recorder", role="reviewer")
+    total_spans = result["counts"]["spans"]
+    live_chunks = result["counts"]["extractor_chunks"]["live"]
+    fallback_chunks = total_spans - live_chunks
+    print(f"recorded {len(recorded)} unique model chunks for model {os.environ['LLM_MODEL']} "
+          f"and prompt {config.PROMPT_VERSION} into {out_dir}")
+    print(f"live chunks: {live_chunks}/{total_spans}; rules fallback chunks: {fallback_chunks}")
+    if fallback_chunks:
+        sys.exit("Live recording was incomplete; resolve the model errors/call cap and record again before verify-live.")
 
 
 if __name__ == "__main__":

@@ -42,6 +42,11 @@ def _spans_for_source(source: dict):
 
 
 def run_rebuild(project_id: str, excluded_channels=None, actor: str = "system", role: str = "system") -> dict:
+    with db.role_context(role):
+        return _run_rebuild(project_id, excluded_channels, actor, role)
+
+
+def _run_rebuild(project_id: str, excluded_channels=None, actor: str = "system", role: str = "system") -> dict:
     # excluded_channels accepted for backwards compatibility; the authority is sources.excluded_channels
     started = time.time()
     project = db.get_project(project_id)
@@ -89,8 +94,10 @@ def run_rebuild(project_id: str, excluded_channels=None, actor: str = "system", 
 
     # Step 3 — pull claims (model may only propose; quotes travel with each candidate).
     t = time.time()
-    run = db.create_run(project_id, extractor="rules", model_id=None, prompt_version=config.PROMPT_VERSION,
-                        params={"llm_mode": adapter.llm_mode()})
+    model_id = adapter.model_id()
+    run = db.create_run(project_id, extractor="rules", model_id=model_id, prompt_version=config.PROMPT_VERSION,
+                        params={"llm_mode": adapter.llm_mode(), "model_id": model_id,
+                                "prompt_version": config.PROMPT_VERSION})
     candidates = []
     extractor_counts = {"rules": 0, "replay": 0, "live": 0}
     for span in stored_spans:
@@ -205,7 +212,7 @@ def run_rebuild(project_id: str, excluded_channels=None, actor: str = "system", 
         "gaps": len(missing),
         "extractor": used,
         "extractor_chunks": extractor_counts,
-        "model_id": None,
+        "model_id": run["model_id"],
         "confidence_floor_kept": sum(1 for r in claim_rows if r["confidence"] >= config.CONFIDENCE_VERIFIED_FLOOR),
         "redactions": sum(sum(int(x.get("count", 1)) for x in _json_list(s.get("redactions"))) for s in [db.get_span(sp["id"]) for sp in stored_spans]) if stored_spans else 0,
         "quarantined": len(db.list_quarantine(project_id)),

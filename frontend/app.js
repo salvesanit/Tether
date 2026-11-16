@@ -4,6 +4,35 @@ const $ = (s, el=document) => el.querySelector(s);
 const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+function setupCrosshairCursor() {
+  const enabled = window.matchMedia("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)");
+  if (!enabled.matches) return;
+  const cursor = document.createElement("div");
+  cursor.className = "cursor-crosshair";
+  cursor.setAttribute("aria-hidden", "true");
+  cursor.innerHTML = "<i></i>";
+  document.body.appendChild(cursor);
+
+  let frame = 0;
+  let point = null;
+  document.addEventListener("pointermove", event => {
+    if (event.pointerType !== "mouse") return;
+    point = {x:event.clientX, y:event.clientY};
+    if (!frame) frame = requestAnimationFrame(() => {
+      cursor.style.setProperty("--cursor-x", `${point.x}px`);
+      cursor.style.setProperty("--cursor-y", `${point.y}px`);
+      cursor.classList.add("is-visible");
+      frame = 0;
+    });
+  }, {passive:true});
+  document.addEventListener("pointerdown", () => cursor.classList.add("is-pressed"), {passive:true});
+  document.addEventListener("pointerup", () => cursor.classList.remove("is-pressed"), {passive:true});
+  document.addEventListener("pointerleave", event => {
+    if (event.target === document.documentElement) cursor.classList.remove("is-visible");
+  }, true);
+}
+setupCrosshairCursor();
+
 const store = {
   get role() { return localStorage.getItem("tether.role") || "reviewer"; },
   set role(v) { localStorage.setItem("tether.role", v); },

@@ -16,6 +16,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 SHOTS = ROOT / "reports" / "ui"
+AXE_SCRIPT = ROOT / "node_modules" / "axe-core" / "axe.min.js"
 SHOTS.mkdir(parents=True, exist_ok=True)
 
 
@@ -31,6 +32,26 @@ def main() -> int:
         log.append((name, ok, detail))
         print(f"[{'PASS' if ok else 'FAIL'}] {name}{(' — ' + detail) if detail else ''}")
 
+    def audit_screen(name):
+        try:
+            violations = page.evaluate("""async () => {
+              const results = await axe.run(document, {
+                runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] }
+              });
+              return results.violations
+                .filter(v => v.impact === "critical" || v.impact === "serious")
+                .map(v => `${v.id} (${v.impact}): ${v.nodes.length} node(s)`);
+            }""")
+            step(f"axe audit: {name}", not violations,
+                 "zero critical/serious violations" if not violations else "; ".join(violations))
+        except Exception as exc:
+            step(f"axe audit: {name}", False, str(exc)[:240])
+
+    def switch_role(role):
+        page.locator(".role-trigger").click()
+        page.locator(f".role-option[data-role='{role}']").click()
+        page.wait_for_timeout(300)
+
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         page = browser.new_page(viewport={"width": 1440, "height": 900})
@@ -40,12 +61,18 @@ def main() -> int:
         # 0. home
         page.goto(base + "/", wait_until="networkidle")
         step("home loads", page.locator("text=The handover that holds").count() >= 1)
+        if AXE_SCRIPT.is_file():
+            page.add_script_tag(path=str(AXE_SCRIPT))
+            step("axe-core loaded", True)
+        else:
+            step("axe-core loaded", False, f"missing {AXE_SCRIPT}; run npm ci")
         page.screenshot(path=str(SHOTS / "01-home.png"), full_page=True)
 
         # 1. load demo as reviewer (default role)
         page.click("#cta-demo")
         page.wait_for_selector("text=Gate 1 — the reviewer clears the labels", timeout=20000)
         step("demo project loads on Connect", True)
+        audit_screen("Connect")
         page.screenshot(path=str(SHOTS / "02-connect.png"), full_page=True)
 
         # 2. clear labels
@@ -60,6 +87,7 @@ def main() -> int:
         page.wait_for_selector(".stat-tiles", timeout=60000)
         kept = page.locator(".stat-tile").nth(2).inner_text()
         step("rebuild completes with stat tiles", "61" in kept.replace("\n", " "), kept.splitlines()[0] if kept else "")
+        audit_screen("Reconstruct")
         page.screenshot(path=str(SHOTS / "03-rebuild.png"), full_page=True)
 
         # 4. review — confirm every pending claim
@@ -75,6 +103,7 @@ def main() -> int:
             confirmed += 1
         step("pending claims confirmed", confirmed >= 1, f"{confirmed} confirmed via UI")
         page.screenshot(path=str(SHOTS / "04-review-claims.png"), full_page=True)
+        audit_screen("Review Queue")
 
         # 4b. conflicts — pick first value + reason, decide
         page.click(".tab[data-tab='conflicts']")
@@ -120,6 +149,7 @@ def main() -> int:
         page.wait_for_selector(".gate-list", timeout=20000)
         gates_all = page.locator("text=ALL PASS").count() >= 1
         step("gate report shows all pass", gates_all)
+        audit_screen("Sign-Off")
         if gates_all:
             page.click("#sign-btn")
             page.wait_for_selector("text=signed & frozen", timeout=20000)
@@ -132,13 +162,13 @@ def main() -> int:
                 step("shared with successor", True)
 
         # 6. successor opens handover + receipt
-        page.click(".role-btn[data-role='successor']")
-        page.wait_for_timeout(600)
+        switch_role("successor")
         page.click("a.step-link[href$='/handover']")
         page.wait_for_selector(".sections-grid", timeout=20000)
         restricted = page.locator(".restricted-notice").count() >= 1
         sections = page.locator(".section-card").count()
         step("successor sees the handover", sections >= 4, f"{sections} sections, restricted notice: {restricted}")
+        audit_screen("Successor View")
         page.screenshot(path=str(SHOTS / "09-handover-successor.png"), full_page=True)
         receipt = page.locator("#receipt-btn")
         if receipt.count():
@@ -147,8 +177,7 @@ def main() -> int:
             step("receipt logged", True)
 
         # 7. admin: verify chain + export page renders
-        page.click(".role-btn[data-role='admin']")
-        page.wait_for_timeout(600)
+        switch_role("admin")
         page.click("a[href$='/admin']")
         page.wait_for_selector("#verify-chain", timeout=20000)
         page.click("#verify-chain")

@@ -48,6 +48,19 @@ The app listens on port `8000` by default. `PORT`, `TETHER_DB`, `TETHER_DATA`, `
 
 The app can also load the synthetic Aster project from the start screen. Seeding and loading are safe to repeat: if an Aster project is already at the first gate, the seed script reports that project instead of adding another.
 
+### PostgreSQL with Docker Compose (optional)
+
+For the PostgreSQL-backed run, copy `.env.example` to `.env`, replace both placeholder passwords with unique URL-safe values, then start the services:
+
+```powershell
+Copy-Item .env.example .env
+notepad .env
+docker compose up --build -d
+docker compose exec tether python scripts/seed.py
+```
+
+Open [http://localhost:8000](http://localhost:8000). PostgreSQL runs with a separate non-superuser application account and forced row policies; schema migrations apply at startup. The `.env` file is ignored by Git and must never contain a credential you commit. To stop the services, run `docker compose down`; to stop and remove the database volume, use `docker compose down -v` (this permanently deletes the Compose database).
+
 ## Take the guided demo
 
 The demo exercises the complete path without API keys or outbound model calls:
@@ -168,14 +181,19 @@ The server enforces the prototype's role and label rules, but anyone who can rea
 
 ## Run tests and scripted checks
 
-From the repository root:
+From the repository root (the suite installs Playwright but browser binaries are installed separately):
 
 ```powershell
+npm ci
 python -m pytest backend\tests -q
 python scripts\verify.py
 ```
 
-`python scripts\verify.py` runs the automated suite and produces reports for the synthetic project. For the scripted end-to-end judge path, `make judge` requires GNU Make and a Bash-compatible shell (for example Git Bash on Windows). The Docker files are provided, but the Docker start path has not been validated; the direct Python start above is the supported path for this prototype.
+`python -m playwright install chromium` installs the browser for the end-to-end test. CI installs Chromium and its Linux dependencies and fails, rather than skips, if the browser journey cannot run. PostgreSQL CI separately runs PERM-1/PERM-5 against PostgreSQL 16. The scripted `make judge` path requires GNU Make and a Bash-compatible shell (for example Git Bash on Windows).
+
+For a real hosted-model comparison, set `LLM_API_KEY`, `LLM_URL`, and `LLM_MODEL` in the shell from a provider key approved for this synthetic-data test, then run `make record-live` followed by `make verify-live`. This makes hosted model calls; never commit the key or enter real HR/project data. The separate report is `reports/verify_live.md`; a fact-count divergence above two returns a review-required exit code and does not change `reports/verify.md`.
+
+The three Round 3 improvements, verification status, and deviations from the original build plan are documented in [Round 3 delivery](docs/ROUND3_DELIVERY.md). PostgreSQL/browser CI and a live model run must pass/be performed before those environments can be reported as operationally verified.
 
 Check `/api/health` in a browser to confirm the server is responding. For a concise feature-to-test map, see [Testing](docs/TESTING.md); for the four-minute script, see [Golden path](docs/demo/golden_path.md).
 
@@ -188,21 +206,21 @@ This README was checked against the supplied **Tether Round 2 Prototype Build Pr
 | End-to-end connect → rebuild → review → signed/shared handover | Implemented; scripted walkthrough is available with `make judge`. See [Golden path](docs/demo/golden_path.md). |
 | Claims must be checked against exact source quotes and locators; failed claims are counted | CK-1 and RD-1 tests; see [verification report](reports/verify.md) and [answer-key report](reports/answer_key_report.md). |
 | Confidence ceilings, conflicts decided by a person, visible gaps with owners/next steps | CK-2, CK-3, and CK-4 tests; reviewer actions are described above. |
-| Labels, weakest-source visibility, successor filtering, and a plain restriction notice | PERM-1 through PERM-4 tests; see [leak test report](reports/leak_test_report.md). |
+| Labels, weakest-source visibility, successor filtering, and a plain restriction notice | PERM-1 through PERM-5 tests; PostgreSQL-backed checks run in CI; see [leak test report](reports/leak_test_report.md). |
 | Excluded channels, pre-storage redaction, and prompt-injection quarantine | SEC-1 through SEC-4 tests. The original upload remains on disk; see [Limitations](docs/LIMITATIONS.md). |
 | Offline/replay mode, honest fixture provenance, and changed input changes output | Replay is the default and makes no live model call; IN-1 covers input changes. Replay verifies the pipeline, not live model quality. |
 | Gate enforcement, reviewer signature, frozen version, and audit trail | REV-1 and the scripted walkthrough; admin export, retention, and deletion have less regression coverage and are not represented as fully verified. |
-| Docker deployment, hosted link, live model quality, and user research | Not verified or not delivered. Docker is untested, there is no deployed URL, live extraction has not been run with a key, and the feedback documents are instruments rather than research results. |
+| PostgreSQL deployment, hosted link, live model quality, and user research | PostgreSQL Compose/CI and live comparison are implemented, but this machine cannot run Docker/PostgreSQL or download Chromium; confirm the CI jobs before treating the first two as verified. No hosted URL exists, live extraction has not been run with an approved key, and the feedback documents are instruments rather than research results. |
 
-The current reports are measurements of the **synthetic Aster project only**. Browser E2E may be skipped on machines missing browser system libraries; the report records that honestly. Do not interpret planted counts as a percentage of real-world knowledge captured. The Round 1 implementation changes, partial items, and deferrals are tracked in [Plan vs Build](docs/PLAN_VS_BUILD.md); unresolved policy choices are in [N1 decisions](docs/N1_DECISIONS.md).
+The current reports are measurements of the **synthetic Aster project only**. CI requires Chromium E2E and PostgreSQL permission tests; local machine skips do not count as passes. Do not interpret planted counts as a percentage of real-world knowledge captured. The Round 1 implementation changes, partial items, and deferrals are tracked in [Plan vs Build](docs/PLAN_VS_BUILD.md); unresolved policy choices are in [N1 decisions](docs/N1_DECISIONS.md).
 
 ## Known limitations
 
 - Authentication is not built; the demo role switcher can be changed by any visitor.
-- SQLite and application-level filtering are used instead of database-enforced PostgreSQL row-level security.
-- Live hosted-model extraction is implemented but has not been exercised; replay uses recorded, `handwritten-reference` fixtures.
-- Docker, public deployment, automated expiry sweeps, real user research, and complete admin regression tests are not delivered.
-- Automated browser E2E may skip when Chromium system libraries are unavailable.
+- SQLite is the local default; PostgreSQL forced RLS is implemented and requires green PostgreSQL CI for integration evidence.
+- Live hosted-model extraction and the isolated comparison are implemented but need an approved key and an actual run; replay still uses `handwritten-reference` fixtures.
+- Public deployment, automated expiry sweeps, real user research, and complete admin regression tests are not delivered.
+- Local browser E2E may skip when Chromium is unavailable; CI is configured to fail instead of skip.
 
 Read [Limitations](docs/LIMITATIONS.md) before using any real sources.
 
@@ -213,6 +231,7 @@ Read [Limitations](docs/LIMITATIONS.md) before using any real sources.
 - [Walkthrough](docs/WALKTHROUGH.md) — trace of a request through the implementation
 - [Plan vs Build](docs/PLAN_VS_BUILD.md) — Round 1 commitments and deviations
 - [Testing](docs/TESTING.md) and [Reliability](docs/RELIABILITY.md) — test coverage and failure cases
+- [Round 3 delivery](docs/ROUND3_DELIVERY.md) — all three improvements, plan changes, and validation status
 - [Input formats](docs/INPUT_FORMATS.md) — upload schemas and examples
 - [Synthetic data](docs/SYNTHETIC_DATA.md) — Aster's provenance and answer-key method
 - [Limitations](docs/LIMITATIONS.md) and [N1 decisions](docs/N1_DECISIONS.md) — known gaps and choices awaiting approval

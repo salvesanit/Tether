@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 
 from . import rules_extractor
+from .. import config
 
 FIXTURES = Path(__file__).resolve().parents[3] / "fixtures" / "llm"
 
@@ -23,6 +24,25 @@ def _fixture_key(prompt_version: str, chunk_hash: str) -> Path:
     return FIXTURES / f"{prompt_version}.{chunk_hash}.json"
 
 
+def fixture_paths(prompt_version: str, chunk_hash: str) -> list[Path]:
+    model_path = FIXTURES / "model" / f"{prompt_version}.{chunk_hash}.json"
+    return [model_path, _fixture_key(prompt_version, chunk_hash)]
+
+
+def model_id() -> str | None:
+    if llm_mode() == "live":
+        return os.environ.get("LLM_MODEL") or None
+    ids = set()
+    for path in (FIXTURES / "model").glob(f"{config.PROMPT_VERSION}.*.json"):
+        try:
+            fixture = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if fixture.get("provenance") == "model" and fixture.get("model_id"):
+            ids.add(fixture["model_id"])
+    return next(iter(ids)) if len(ids) == 1 else None
+
+
 def extract_claims(chunk_text: str, ceiling_kind: str, ceiling: float, locator: str):
     """Return (candidates, extractor_used). Never raises on bad model output — falls back to rules."""
     mode = llm_mode()
@@ -38,10 +58,17 @@ def extract_claims(chunk_text: str, ceiling_kind: str, ceiling: float, locator: 
                 pass  # any failure → rules fallback, and the run report says so
         # cap reached or the call failed → rules extractor, counted on the run
     elif mode == "replay":
-        fx = _fixture_key("extract-claims-v3", chunk_hash)
-        if fx.exists():
-            meta = json.loads(fx.read_text())
-            if meta.get("provenance") in ("model", "handwritten-reference"):
+        selected = os.environ.get("LLM_FIXTURE_PROVENANCE", "all").lower()
+        if selected not in ("all", "model", "handwritten-reference"):
+            raise RuntimeError("LLM_FIXTURE_PROVENANCE must be all, model, or handwritten-reference")
+        for fx in fixture_paths("extract-claims-v3", chunk_hash):
+            if not fx.exists():
+                continue
+            meta = json.loads(fx.read_text(encoding="utf-8"))
+            provenance = meta.get("provenance")
+            if selected != "all" and provenance != selected:
+                continue
+            if provenance in ("model", "handwritten-reference"):
                 claims = meta.get("claims", [])
                 for c in claims:
                     c.setdefault("ceiling_kind", ceiling_kind)

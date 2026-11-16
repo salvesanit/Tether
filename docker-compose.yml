@@ -1,17 +1,37 @@
-# Spec target (Round 2 brief, rule 2): docker compose up --build, then make seed.
-# NOTE honestly: no Docker daemon exists in the build sandbox, so this file is authored
-# but untested here — verified 2026-11-10 by reading, direct run verified instead (make run).
 services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: tether_admin
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?Set POSTGRES_ADMIN_PASSWORD in .env}
+      POSTGRES_DB: tether
+      TETHER_APP_PASSWORD: ${TETHER_APP_PASSWORD:?Set TETHER_APP_PASSWORD in .env}
+    command: ["bash", "-c", "cp /app-init/001_create_app_role.sh /docker-entrypoint-initdb.d/001_create_app_role.sh && chmod +x /docker-entrypoint-initdb.d/001_create_app_role.sh && exec /usr/local/bin/docker-entrypoint.sh postgres"]
+    volumes:
+      - tether-db:/var/lib/postgresql/data
+      - ./db/init/001_create_app_role.sh:/app-init/001_create_app_role.sh:ro
+      - ./db/init/001_create_app_role.sql:/app-init/001_create_app_role.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tether_admin -d tether"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
   tether:
     build: .
+    depends_on:
+      db:
+        condition: service_healthy
     ports: ["8000:8000"]
     environment:
-      TETHER_DB: /data/tether.db
+      TETHER_DATABASE_URL: postgresql://tether_app:${TETHER_APP_PASSWORD}@db:5432/tether
       TETHER_DATA: /data/var
       DEMO_MODE: "true"
       LLM_MODE: replay
       PORT: "8000"
     volumes:
       - tether-data:/data
+
 volumes:
   tether-data:
+  tether-db:

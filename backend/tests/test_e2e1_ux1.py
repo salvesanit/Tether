@@ -30,10 +30,13 @@ def _chromium_ok():
 
 
 CHROMIUM = _chromium_ok()
+REQUIRE_E2E = os.environ.get("REQUIRE_E2E") == "1"
 
 
-@pytest.mark.skipif(not CHROMIUM, reason="Playwright chromium needs system libraries (libnspr4 etc.) — absent in this sandbox; scripts/ui_smoke.py runs the same DM-1→DM-4 path on a desktop")
+@pytest.mark.skipif(not CHROMIUM and not REQUIRE_E2E,
+                    reason="Playwright chromium is unavailable locally; CI installs it and requires E2E-1")
 def test_e2e1_four_minute_path_twice_from_clean_start():
+    assert CHROMIUM, "REQUIRE_E2E=1 but Playwright Chromium could not launch"
     for attempt in (1, 2):
         for suffix in ("", "-shm", "-wal"):
             Path(E2E_DB + suffix).unlink(missing_ok=True)
@@ -67,10 +70,11 @@ html_path = ROOT / "frontend/index.html"
 
 
 def test_ux1_structure_carries_landmarks_and_focus():
-    html = html_path.read_text()
-    css = (ROOT / "frontend/style.css").read_text()
+    html = html_path.read_text(encoding="utf-8")
+    css = (ROOT / "frontend/style.css").read_text(encoding="utf-8")
     assert "<title>" in html
-    assert 'id="role-select"' in html and 'aria-label="Switch role"' in html  # native select — keyboard-operable role switcher
+    assert 'class="role-picker"' in html and 'aria-label="Switch role"' in (ROOT / "frontend/app.js").read_text(encoding="utf-8")
+    assert 'role="listbox"' in (ROOT / "frontend/app.js").read_text(encoding="utf-8")
     assert "<main" in html and "<nav" in html
     assert '<header' in html and 'aria-label="Sections"' in html  # top bar exposes a labelled nav landmark
     assert "prefers-reduced-motion" in css
@@ -78,7 +82,7 @@ def test_ux1_structure_carries_landmarks_and_focus():
 
 
 def test_ux1_review_actions_keyboard_operable():
-    js = (ROOT / "frontend/app.js").read_text()
+    js = (ROOT / "frontend/app.js").read_text(encoding="utf-8")
     # confirm/edit/reject/park are buttons; reasons are keyboard-focusable inputs
     assert 'data-act="confirm"' in js
     assert 'type="text"' in js  # reason inputs

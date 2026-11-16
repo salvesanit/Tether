@@ -15,12 +15,12 @@ sys.path.insert(0, str(ROOT))
 REPORTS = ROOT / "reports"
 REPORTS.mkdir(exist_ok=True)
 
-TEST_ID = re.compile(r"test_(key1|rd1|rd2|ck1|ck2|ck3|ck4|ak1|ak2|sw1|in1|perm1|perm2|perm3|perm4|sec1|sec2|sec3|sec4|rev1|e2e1|ux1)_")
+TEST_ID = re.compile(r"test_(key1|rd1|rd2|ck1|ck2|ck3|ck4|ak1|ak2|sw1|in1|perm1|perm2|perm3|perm4|perm5|sec1|sec2|sec3|sec4|rev1|e2e1|ux1|live)_")
 ID_LABEL = {"key1": "KEY-1", "rd1": "RD-1", "rd2": "RD-2", "ck1": "CK-1", "ck2": "CK-2", "ck3": "CK-3",
             "ck4": "CK-4", "ak1": "AK-1", "ak2": "AK-2", "sw1": "SW-1", "in1": "IN-1",
             "perm1": "PERM-1", "perm2": "PERM-2", "perm3": "PERM-3", "perm4": "PERM-4",
             "sec1": "SEC-1", "sec2": "SEC-2", "sec3": "SEC-3", "sec4": "SEC-4", "rev1": "REV-1",
-            "e2e1": "E2E-1", "ux1": "UX-1"}
+            "perm5": "PERM-5", "e2e1": "E2E-1", "ux1": "UX-1", "live": "LIVE-1"}
 
 
 def git_sha():
@@ -35,6 +35,15 @@ def git_sha():
         return "(no git metadata)"
 
 
+def git_worktree_dirty() -> bool:
+    try:
+        result = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT, capture_output=True,
+                                text=True, timeout=10)
+        return bool(result.stdout.strip()) if result.returncode == 0 else True
+    except Exception:
+        return True
+
+
 def scratch_dir():
     d = Path("/tmp/tether-verify-scratch")
     shutil.rmtree(d, ignore_errors=True)
@@ -42,12 +51,13 @@ def scratch_dir():
     return d
 
 
-def main() -> int:
+def _main() -> int:
     work = scratch_dir()
     env = dict(os.environ, TETHER_DB=str(work / "verify.db"), TETHER_DATA=str(work / "var"),
                LLM_MODE=os.environ.get("LLM_MODE", "replay"), DEMO_MODE="true")
     date = time.strftime("%Y-%m-%d", time.gmtime())
     sha = git_sha()
+    dirty = git_worktree_dirty()
     mode = env["LLM_MODE"]
 
     print("== verify: rebuilding the demo on a throwaway DB ==")
@@ -102,7 +112,7 @@ def main() -> int:
     per_id = {v: [0, 0, []] for v in ID_LABEL.values()}  # passed, failed, notes
     for line in proc.stdout.splitlines():
         func = line.split("::", 1)[-1] if "::" in line else line
-        m = re.search(r"test_(key1|rd1|rd2|ck1|ck2|ck3|ck4|ak1|ak2|sw1|in1|perm1|perm2|perm3|perm4|sec1|sec2|sec3|sec4|rev1|e2e1|ux1)_", func)
+        m = re.search(r"test_(key1|rd1|rd2|ck1|ck2|ck3|ck4|ak1|ak2|sw1|in1|perm1|perm2|perm3|perm4|perm5|sec1|sec2|sec3|sec4|rev1|e2e1|ux1|live)_", func)
         if not m:
             continue
         label = ID_LABEL[m.group(1)]
@@ -132,9 +142,10 @@ def main() -> int:
                 label[2] = [f"skipped — {skip_reasons[0]}"]
 
     sha_short = sha[:12] if sha != "(no git metadata)" else sha
-    header = (f"<!-- commit {sha_short} · {date} · model mode: {mode} · measured on the synthetic project -->\n")
+    worktree_state = "modified worktree" if dirty else "clean worktree"
+    header = (f"<!-- commit {sha_short} · {worktree_state} · {date} · model mode: {mode} · measured on the synthetic project -->\n")
 
-    _write_check_report(ROOT / "reports/check_report.json", result, project, counts, key, date, sha, mode)
+    _write_check_report(ROOT / "reports/check_report.json", result, project, counts, key, date, sha, mode, dirty)
     dropped_map = {}
     for cand in db.list_candidates(result["run"]["id"]):
         try:
@@ -148,7 +159,9 @@ def main() -> int:
     _write_leak_report(ROOT / "reports/leak_test_report.md", leaks, date, sha, mode, header)
 
     fail_count = sum(v[1] for v in per_id.values())
-    overall = "PASS" if fail_count == 0 and not leaks["failed"] else "FAIL"
+    skipped_groups = [label for label, (_passed, failed, notes) in per_id.items()
+                      if not failed and notes and all(n.startswith("skipped") for n in notes)]
+    overall = "FAIL" if fail_count or leaks["failed"] else ("PASS WITH SKIPS" if skipped_groups else "PASS")
     lines = [header, "# Tether — verification report\n\n",
              f"**Result: {overall}** · commit `{sha_short}` · {date} · model mode: `{mode}` · measured on the synthetic project.\n\n",
              "In replay mode the model call is recorded, so this report shows that the checks and the plumbing work — not that the model is good. "
@@ -156,22 +169,28 @@ def main() -> int:
              "| Test ID | Result | Detail |\n|---|---|---|\n"]
     for label in sorted(per_id, key=lambda x: (x.split("-")[0], x)):
         p_, f_, notes = per_id[label]
-        res = "FAIL" if f_ else ("PASS" if p_ else "PASS-ish?")
+        res = "FAIL" if f_ else ("PASS" if p_ else "NOT RUN")
         if f_:
             res = "FAIL"
         elif notes and all(n.startswith("skipped") for n in notes):
-            res = "PASS (browser-dependent parts SKIPPED)"
+            res = "SKIPPED (requires CI service)"
         lines.append(f"| {label} | {res} | {'<br>'.join(notes) or 'ok'} |\n")
     lines.append(f"\n## Rebuild counts (this run)\n\nspans {counts['spans']} · candidates {counts['candidates']} · kept {counts['kept']} · "
                  f"dropped {counts['dropped']} ({counts['dropped_by_reason']}) · conflicts {counts['conflicts']} · gaps {counts['gaps']} · "
                  f"redactions {counts['redactions']} · quarantine {counts['quarantined']}\n\n")
     lines.append("## Not read\n\n" + "\n".join(f"- {s['name']} — {s['reason']}" for s in counts.get("not_read_sources", [])) + "\n")
     lines.append("\n## SW-1\n\nRun without the chat export: the CK-4 gap queue still opens (see test_sw1_*), and the missing source is chat.json — 11 of 61 planted facts live in chat. The report you are reading names it.\n")
-    lines.append("\n## E2E-1 / UX-1\n\nBrowser-dependent. Where chromium cannot launch (this machine lacks libnspr4), those tests SKIP with a stated reason; `python3 scripts/ui_smoke.py` runs the same path on a desktop and writes screenshots to reports/ui/.\n")
-    (REPORTS / "verify.md").write_text("".join(lines))
+    lines.append("\n## Integration checks\n\nE2E-1 requires Playwright Chromium; PERM-5 requires PostgreSQL. Local skips are reported as SKIPPED, not PASS. CI installs the browser and database service and requires these checks to run. The separate `scripts/ui_smoke.py` path also writes screenshots under `reports/ui/`.\n")
+    (REPORTS / "verify.md").write_text("".join(lines), encoding="utf-8")
     print(f"\nreports written: verify.md, answer_key_report.md, check_report.json, leak_test_report.md")
     print(f"verdict: {overall} ({fail_count} failing test files groups)")
-    return 0 if overall == "PASS" else 1
+    return 0 if overall != "FAIL" else 1
+
+
+def main() -> int:
+    from backend.app.db import read_path as db
+    with db.role_context("reviewer"):
+        return _main()
 
 
 def _leak_probe(client, pid, key, db):
@@ -230,10 +249,11 @@ def _leak_probe(client, pid, key, db):
     return {"rows": rows, "failed": failed, "needles": max_needles}
 
 
-def _write_check_report(path, result, project, counts, key, date, sha, mode):
+def _write_check_report(path, result, project, counts, key, date, sha, mode, dirty):
     payload = {
         "report": "check_report — Tether Round 2",
         "commit": sha, "date": date, "model_mode": mode,
+        "working_tree_dirty": dirty,
         "measured_on": "the synthetic project (Aster)",
         "project_id": project["id"],
         "run": {"id": result["run"]["id"], "extractor": counts["extractor"],
@@ -244,7 +264,7 @@ def _write_check_report(path, result, project, counts, key, date, sha, mode):
         "planted": {"facts": len(key["facts"]), "fakes": len(key["fakes"])},
         "note": "In replay mode the model call is recorded; this report shows the checks and the plumbing work. Counts only — never a loss rate.",
     }
-    Path(path).write_text(json.dumps(payload, indent=2, default=str))
+    Path(path).write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
 
 
 def _write_answer_key_report(path, key, facts_by_type, facts_found, found_decisions, decisions,
@@ -271,7 +291,7 @@ def _write_answer_key_report(path, key, facts_by_type, facts_found, found_decisi
     lines.append("\n## Wrongly kept\n\nNone — every kept candidate passed the quote check character-for-character.\n\n")
     lines.append("## Missed\n\n" + ("None.\n" if facts_found == len(key["facts"]) else
                                     f"{len(key['facts']) - facts_found} fact(s) not kept; see the claims table.\n"))
-    Path(path).write_text("".join(lines))
+    Path(path).write_text("".join(lines), encoding="utf-8")
 
 
 def _write_leak_report(path, leaks, date, sha, mode, header):
@@ -286,7 +306,7 @@ def _write_leak_report(path, leaks, date, sha, mode, header):
         lines.append("\n## Failures\n\n" + "\n".join(f"- {p} ({r}): {h}" for p, r, h in leaks["failed"]) + "\n")
     else:
         lines.append("\nNo restricted, confidential, personal-data or honeytoken string crossed the successor or leaver boundary on any route, including direct span IDs (403) and the export and the log.\n")
-    Path(path).write_text("".join(lines))
+    Path(path).write_text("".join(lines), encoding="utf-8")
 
 
 if __name__ == "__main__":

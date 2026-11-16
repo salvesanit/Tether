@@ -1,7 +1,7 @@
-<!-- commit 93be1ea87f54 · 2026-11-10 · model mode: replay · measured on the synthetic project -->
+<!-- commit a6ce51adc492 · modified worktree · 2026-11-12 · model mode: replay · measured on the synthetic project -->
 # Tether — verification report
 
-**Result: PASS** · commit `93be1ea87f54` · 2026-11-10 · model mode: `replay` · measured on the synthetic project.
+**Result: PASS WITH SKIPS** · commit `a6ce51adc492` · 2026-11-12 · model mode: `replay` · measured on the synthetic project.
 
 In replay mode the model call is recorded, so this report shows that the checks and the plumbing work — not that the model is good. Counts only: never a loss rate, never a percent of knowledge captured.
 
@@ -13,13 +13,15 @@ In replay mode the model call is recorded, so this report shows that the checks 
 | CK-2 | PASS | ok |
 | CK-3 | PASS | ok |
 | CK-4 | PASS | ok |
-| E2E-1 | PASS (browser-dependent parts SKIPPED) | skipped |
+| E2E-1 | SKIPPED (requires CI service) | skipped |
 | IN-1 | PASS | ok |
 | KEY-1 | PASS | ok |
+| LIVE-1 | PASS | ok |
 | PERM-1 | PASS | ok |
 | PERM-2 | PASS | ok |
 | PERM-3 | PASS | ok |
 | PERM-4 | PASS | ok |
+| PERM-5 | SKIPPED (requires CI service) | skipped |
 | RD-1 | PASS | ok |
 | RD-2 | PASS | ok |
 | REV-1 | PASS | ok |
@@ -43,6 +45,6 @@ spans 165 · candidates 82 · kept 60 · dropped 21 ({'quote_not_found': 21}) ·
 
 Run without the chat export: the CK-4 gap queue still opens (see test_sw1_*), and the missing source is chat.json — 11 of 61 planted facts live in chat. The report you are reading names it.
 
-## E2E-1 / UX-1
+## Integration checks
 
-Browser-dependent. Where chromium cannot launch (this machine lacks libnspr4), those tests SKIP with a stated reason; `python3 scripts/ui_smoke.py` runs the same path on a desktop and writes screenshots to reports/ui/.
+E2E-1 requires Playwright Chromium; PERM-5 requires PostgreSQL. Local skips are reported as SKIPPED, not PASS. CI installs the browser and database service and requires these checks to run. The separate `scripts/ui_smoke.py` path also writes screenshots under `reports/ui/`.
